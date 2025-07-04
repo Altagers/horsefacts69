@@ -8,17 +8,24 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const characterId = searchParams.get("character")
 
+    console.log("🖼️ Generating OG image for character:", characterId)
+
     if (!characterId) {
+      console.error("❌ No character ID provided")
       return new Response("Character ID required", { status: 400 })
     }
 
     const character = getCharacter(characterId)
 
     if (!character) {
+      console.error("❌ Character not found:", characterId)
       return new Response("Character not found", { status: 404 })
     }
 
     const baseUrl = process.env.NEXT_PUBLIC_URL || "https://horsefacts-pics.vercel.app"
+    const imageUrl = `${baseUrl}${character.image}`
+
+    console.log("✅ Generating image for:", character.name, "Image URL:", imageUrl)
 
     return new ImageResponse(
       <div
@@ -32,27 +39,42 @@ export async function GET(request: Request) {
           backgroundColor: "#FEF3C7",
           backgroundImage: "linear-gradient(45deg, #FEF3C7 0%, #FED7AA 100%)",
           fontFamily: "system-ui, sans-serif",
+          position: "relative",
         }}
       >
+        {/* Background Pattern */}
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundImage:
+              "radial-gradient(circle at 25% 25%, #F59E0B20 0%, transparent 50%), radial-gradient(circle at 75% 75%, #EA580C20 0%, transparent 50%)",
+          }}
+        />
+
         {/* Header */}
         <div
           style={{
             display: "flex",
             alignItems: "center",
-            marginBottom: "40px",
+            marginBottom: "30px",
+            zIndex: 1,
           }}
         >
           <div
             style={{
-              fontSize: "48px",
-              marginRight: "20px",
+              fontSize: "40px",
+              marginRight: "15px",
             }}
           >
             🐴
           </div>
           <div
             style={{
-              fontSize: "36px",
+              fontSize: "32px",
               fontWeight: "bold",
               color: "#92400E",
             }}
@@ -61,8 +83,8 @@ export async function GET(request: Request) {
           </div>
           <div
             style={{
-              fontSize: "48px",
-              marginLeft: "20px",
+              fontSize: "40px",
+              marginLeft: "15px",
               transform: "scaleX(-1)",
             }}
           >
@@ -75,12 +97,13 @@ export async function GET(request: Request) {
           style={{
             display: "flex",
             alignItems: "center",
-            backgroundColor: "rgba(255, 255, 255, 0.9)",
+            backgroundColor: "rgba(255, 255, 255, 0.95)",
             borderRadius: "24px",
             padding: "40px",
             boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)",
-            border: "3px solid #F59E0B",
+            border: "4px solid #F59E0B",
             maxWidth: "1000px",
+            zIndex: 1,
           }}
         >
           {/* Character Image */}
@@ -91,14 +114,15 @@ export async function GET(request: Request) {
             }}
           >
             <img
-              src={`${baseUrl}${character.image}`}
+              src={imageUrl || "/placeholder.svg"}
               alt={character.name}
-              width="300"
-              height="200"
+              width="280"
+              height="280"
               style={{
-                borderRadius: "16px",
+                borderRadius: "20px",
                 border: "4px solid #F59E0B",
-                objectFit: "cover",
+                objectFit: "contain",
+                backgroundColor: "white",
               }}
             />
           </div>
@@ -113,7 +137,7 @@ export async function GET(request: Request) {
           >
             <div
               style={{
-                fontSize: "48px",
+                fontSize: "44px",
                 fontWeight: "bold",
                 color: "#92400E",
                 marginBottom: "16px",
@@ -127,7 +151,7 @@ export async function GET(request: Request) {
 
             <div
               style={{
-                fontSize: "28px",
+                fontSize: "26px",
                 fontWeight: "600",
                 color: "#B45309",
                 marginBottom: "20px",
@@ -138,14 +162,14 @@ export async function GET(request: Request) {
 
             <div
               style={{
-                fontSize: "20px",
+                fontSize: "18px",
                 color: "#92400E",
                 lineHeight: "1.4",
                 marginBottom: "24px",
               }}
             >
-              {character.description.length > 120
-                ? character.description.substring(0, 120) + "..."
+              {character.description.length > 140
+                ? character.description.substring(0, 140) + "..."
                 : character.description}
             </div>
 
@@ -159,7 +183,7 @@ export async function GET(request: Request) {
             >
               <div
                 style={{
-                  fontSize: "18px",
+                  fontSize: "16px",
                   fontWeight: "bold",
                   color: "#92400E",
                   marginBottom: "8px",
@@ -169,12 +193,13 @@ export async function GET(request: Request) {
               </div>
               <div
                 style={{
-                  fontSize: "16px",
+                  fontSize: "14px",
                   color: "#92400E",
                   fontStyle: "italic",
+                  lineHeight: "1.3",
                 }}
               >
-                {character.fact.length > 100 ? character.fact.substring(0, 100) + "..." : character.fact}
+                {character.fact.length > 120 ? character.fact.substring(0, 120) + "..." : character.fact}
               </div>
             </div>
           </div>
@@ -183,13 +208,14 @@ export async function GET(request: Request) {
         {/* Footer */}
         <div
           style={{
-            marginTop: "40px",
-            fontSize: "24px",
+            marginTop: "30px",
+            fontSize: "20px",
             color: "#92400E",
             fontWeight: "600",
+            zIndex: 1,
           }}
         >
-          Find your horse personality at horsefacts-pics.vercel.app
+          Discover your horse personality!
         </div>
       </div>,
       {
@@ -198,7 +224,7 @@ export async function GET(request: Request) {
       },
     )
   } catch (error) {
-    console.error("Error generating OG image:", error)
+    console.error("❌ Error generating OG image:", error)
     return new Response("Failed to generate image", { status: 500 })
   }
 }

@@ -21,16 +21,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   const baseUrl = process.env.NEXT_PUBLIC_URL || "https://horsefacts-pics.vercel.app"
+  const ogImageUrl = `${baseUrl}/api/generate-og-image?character=${character.id}`
 
   return {
     title: `${character.name} - Horse Facts & Pics`,
-    description: `${character.description} ${character.fact}`,
+    description: `${character.description} Horse Fact: ${character.fact}`,
     openGraph: {
       title: `I'm ${character.name}! ${character.emoji} ${character.personality}`,
       description: character.description,
       images: [
         {
-          url: `${baseUrl}/api/generate-og-image?character=${character.id}`,
+          url: ogImageUrl,
           width: 1200,
           height: 630,
           alt: `${character.name} - ${character.personality}`,
@@ -38,12 +39,29 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       ],
       type: "website",
       siteName: "Horse Facts & Pics",
+      url: `${baseUrl}/s/${character.id}`,
     },
     twitter: {
       card: "summary_large_image",
       title: `I'm ${character.name}! ${character.emoji} ${character.personality}`,
       description: character.description,
-      images: [`${baseUrl}/api/generate-og-image?character=${character.id}`],
+      images: [ogImageUrl],
+    },
+    other: {
+      "fc:frame": JSON.stringify({
+        version: "next",
+        imageUrl: ogImageUrl,
+        button: {
+          title: `I'm ${character.name}! Open Analyzer`,
+          action: {
+            type: "launch_frame",
+            name: "Horse Facts & Pics",
+            url: baseUrl,
+            splashImageUrl: `${baseUrl}/splash.png`,
+            splashBackgroundColor: "#FEF3C7",
+          },
+        },
+      }),
     },
   }
 }

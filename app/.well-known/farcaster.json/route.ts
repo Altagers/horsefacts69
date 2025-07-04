@@ -10,7 +10,7 @@ function withValidProperties(properties: Record<string, undefined | string | str
 }
 
 export async function GET() {
-  const URL = process.env.NEXT_PUBLIC_URL
+  const URL = process.env.NEXT_PUBLIC_URL || "https://horsefacts-pics.vercel.app"
 
   return Response.json({
     accountAssociation: {
@@ -20,22 +20,22 @@ export async function GET() {
     },
     frame: withValidProperties({
       version: "1",
-      name: process.env.NEXT_PUBLIC_ONCHAINKIT_PROJECT_NAME,
-      subtitle: process.env.NEXT_PUBLIC_APP_SUBTITLE,
-      description: process.env.NEXT_PUBLIC_APP_DESCRIPTION,
-      screenshotUrls: [],
-      iconUrl: process.env.NEXT_PUBLIC_APP_ICON,
-      splashImageUrl: process.env.NEXT_PUBLIC_APP_SPLASH_IMAGE,
-      splashBackgroundColor: process.env.NEXT_PUBLIC_SPLASH_BACKGROUND_COLOR,
+      name: "Horse Facts & Pics",
+      subtitle: "Discover your horse personality",
+      description: "Find out which amazing horse fact matches your personality based on your Farcaster posts!",
+      screenshotUrls: [`${URL}/banner.png`],
+      iconUrl: `${URL}/logo.png`,
+      splashImageUrl: `${URL}/splash.png`,
+      splashBackgroundColor: "#FEF3C7",
       homeUrl: URL,
       webhookUrl: `${URL}/api/webhook`,
-      primaryCategory: process.env.NEXT_PUBLIC_APP_PRIMARY_CATEGORY,
-      tags: [],
-      heroImageUrl: process.env.NEXT_PUBLIC_APP_HERO_IMAGE,
-      tagline: process.env.NEXT_PUBLIC_APP_TAGLINE,
-      ogTitle: process.env.NEXT_PUBLIC_APP_OG_TITLE,
-      ogDescription: process.env.NEXT_PUBLIC_APP_OG_DESCRIPTION,
-      ogImageUrl: process.env.NEXT_PUBLIC_APP_OG_IMAGE,
+      primaryCategory: "entertainment",
+      tags: ["personality", "horses", "facts", "fun"],
+      heroImageUrl: `${URL}/banner.png`,
+      tagline: "Which horse fact are you?",
+      ogTitle: "Horse Facts & Pics",
+      ogDescription: "Discover which amazing horse fact matches your personality!",
+      ogImageUrl: `${URL}/banner.png`,
     }),
   })
 }
