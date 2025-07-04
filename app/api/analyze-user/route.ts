@@ -1,108 +1,80 @@
 import { type NextRequest, NextResponse } from "next/server"
-import OpenAI from "openai"
+import { generateText } from "ai"
+import { openai } from "@ai-sdk/openai"
 import { characters } from "@/lib/characters"
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
+/**
+ * POST /api/analyze-user
+ * Body: { fid: number }
+ *
+ * 1. Pull up to 25 recent casts from Neynar.
+ * 2. Ask the OpenAI model which “horse fact personality” fits best.
+ * 3. Return the matched character object.
+ */
+export const maxDuration = 60 // 60-second function timeout
 
 export async function POST(req: NextRequest) {
   try {
-    const { fid } = await req.json()
+    const { fid } = await req.json<{ fid: number }>()
 
     if (!fid) {
-      return NextResponse.json({ error: "FID is required" }, { status: 400 })
+      return NextResponse.json({ error: "fid is required" }, { status: 400 })
     }
 
-    console.log(`API: Analyzing user with FID: ${fid}`)
+    /* ---------------- Fetch posts from Neynar ---------------- */
+    if (!process.env.NEYNAR_API_KEY) {
+      return NextResponse.json({ error: "NEYNAR_API_KEY not set" }, { status: 500 })
+    }
 
-    // Fetch user's casts from Neynar
-    const neynarResponse = await fetch(`https://api.neynar.com/v2/farcaster/feed/user/casts?fid=${fid}&limit=25`, {
-      headers: {
-        "X-API-KEY": process.env.NEYNAR_API_KEY!,
-      },
+    const feedRes = await fetch(`https://api.neynar.com/v2/farcaster/feed/user/casts?fid=${fid}&limit=25`, {
+      headers: { "X-API-KEY": process.env.NEYNAR_API_KEY },
     })
 
-    if (!neynarResponse.ok) {
-      throw new Error(`Neynar API error: ${neynarResponse.status}`)
+    if (!feedRes.ok) {
+      const txt = await feedRes.text()
+      return NextResponse.json({ error: `Neynar error (${feedRes.status}): ${txt}` }, { status: 502 })
     }
 
-    const neynarData = await neynarResponse.json()
-    const casts = neynarData.casts || []
+    const feedJson = await feedRes.json()
+    const texts: string[] = feedJson.casts?.map((c: any) => c.text)?.filter((t: string) => t && t.trim().length) ?? []
 
-    if (casts.length === 0) {
-      return NextResponse.json({ error: "No posts found for analysis" }, { status: 404 })
+    if (texts.length === 0) {
+      return NextResponse.json({ error: "No textual casts found for this user." }, { status: 404 })
     }
 
-    // Extract text content from casts
-    const postTexts = casts
-      .map((cast: any) => cast.text)
-      .filter((text: string) => text && text.trim().length > 0)
-      .slice(0, 20) // Limit to 20 most recent posts
-
-    if (postTexts.length === 0) {
-      return NextResponse.json({ error: "No text content found in posts" }, { status: 404 })
-    }
-
-    console.log(`API: Found ${postTexts.length} posts to analyze`)
-
-    // Analyze with OpenAI
+    /* ---------------- Ask OpenAI which fact fits ---------------- */
     const prompt = `
-    Analyze these social media posts and determine which horse fact personality they match best. 
-    
-    Here are the horse fact personalities:
-    1. The Breathing Expert - Focused, direct, respiratory specialist (horses breathe only through nostrils)
-    2. The All-Seeing Observer - Visionary, aware, sees opportunities (horses have 360-degree vision)
-    3. The Big Picture Thinker - Perceptive, insightful, grand perspective (horses have largest eyes among land mammals)
-    4. The Efficient Rester - Adaptable, resourceful, knows when to rest (horses sleep standing up)
-    5. The Powerhouse - Strong, energetic, gives their all (horse heart pumps 250L/min)
-    6. The Lifelong Learner - Growing, evolving, never stops learning (horse teeth grow throughout life)
-    7. The Efficient Processor - Resourceful, adaptable, makes most of what they have (horses digest without gallbladder)
-    8. The Loyal Friend - Memorable, faithful, deep relationships (horses remember people for years)
-    9. The Great Communicator - Expressive, social, great at communication (horses have 17+ facial expressions)
-    10. The Problem Solver - Clever, ingenious, figures out solutions (horses learn to open doors)
+You are a personality analyser.  
+Match the author of the following posts to the ONE horse-fact personality
+from the list. Respond with ONLY the key word:
 
-    Posts to analyze:
-    ${postTexts.join("\n---\n")}
+breathing  –  focused, direct, respiratory-expert  
+vision     –  visionary, aware, opportunity-seer  
+eyes       –  perceptive, big-picture thinker  
+sleep      –  adaptable, efficient rester  
+heart      –  powerhouse, energetic, gives everything  
+teeth      –  lifelong learner, always growing  
+digestion  –  resourceful, makes most of what they have  
+memory     –  loyal friend, remembers for years  
+expression –  great communicator, highly expressive  
+intelligence – clever problem solver, opens doors  
 
-    Based on the writing style, topics, and personality shown in these posts, which horse fact personality matches best? 
-    Respond with just the key from this list: breathing, vision, eyes, sleep, heart, teeth, digestion, memory, expression, intelligence
-    `
+Posts:
+${texts.slice(0, 20).join("\n---\n")}
+`.trim()
 
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        {
-          role: "system",
-          content:
-            "You are an expert at analyzing social media posts to determine personality types based on horse facts. Respond with only the single key word that matches the personality.",
-        },
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
-      max_tokens: 50,
-      temperature: 0.7,
+    const { text: key } = await generateText({
+      model: openai("gpt-4o-mini"),
+      prompt,
+      maxTokens: 10,
+      temperature: 0.4,
     })
 
-    const result = completion.choices[0]?.message?.content?.trim().toLowerCase()
-    console.log(`API: OpenAI analysis result: ${result}`)
+    const chosen = characters[key.trim().toLowerCase() as keyof typeof characters] ?? characters.memory
 
-    // Map result to character
-    const character = characters[result as keyof typeof characters] || characters.memory // Default fallback
-
-    console.log(`API: Selected character: ${character.name}`)
-
-    return NextResponse.json({
-      character,
-      analysis: {
-        postsAnalyzed: postTexts.length,
-        selectedPersonality: result,
-      },
-    })
-  } catch (error) {
-    console.error("Analysis error:", error)
-    return NextResponse.json({ error: "Failed to analyze posts. Please try again." }, { status: 500 })
+    return NextResponse.json({ character: chosen })
+  } catch (err) {
+    console.error("analyze-user error:", err)
+    return NextResponse.json({ error: "Internal error" }, { status: 500 })
   }
 }
