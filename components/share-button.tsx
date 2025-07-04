@@ -1,39 +1,55 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { useMiniKit } from "@coinbase/onchainkit/minikit"
+import { Share2 } from "lucide-react"
+import sdk from "@farcaster/frame-sdk"
+import { useEffect, useState } from "react"
 
 export function ShareButton() {
-  const { sdk } = useMiniKit()
+  const [isSDKLoaded, setIsSDKLoaded] = useState(false)
 
-  const handleShare = () => {
-    const shareText = `🐴 Just discovered my horse personality! 
+  useEffect(() => {
+    const load = async () => {
+      sdk.actions.ready()
+      setIsSDKLoaded(true)
+    }
+    if (sdk && !isSDKLoaded) {
+      load()
+    }
+  }, [isSDKLoaded])
 
-These amazing horse facts will blow your mind - from horses who can only breathe through their nostrils to those with 360-degree vision! 
+  const handleShare = async () => {
+    if (!isSDKLoaded) return
 
-Find out which incredible horse trait matches YOUR personality:`
+    try {
+      const shareText = `🐴 Discover your horse personality with fascinating facts!
 
-    const shareUrl = window.location.origin
+Which of the 10 unique horse personalities matches your Farcaster posts?
 
-    if (sdk?.actions?.composeCast) {
-      sdk.actions.composeCast({
+Try Horse Facts & Pics:`
+
+      const result = await sdk.actions.composeCast({
         text: shareText,
-        embeds: [shareUrl],
+        embeds: [window.location.origin],
       })
-    } else {
-      // Fallback
-      const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText + " " + shareUrl)}`
-      window.open(twitterUrl, "_blank")
+
+      if (result.isError) {
+        console.error("Share error:", result.error)
+      }
+    } catch (error) {
+      console.error("Failed to share:", error)
     }
   }
 
   return (
     <Button
       onClick={handleShare}
+      variant="outline"
       size="lg"
-      className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-8 py-4 text-lg font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+      className="border-amber-300 text-amber-700 hover:bg-amber-50 px-8 py-3 text-lg font-semibold rounded-xl shadow-md hover:shadow-lg transition-all duration-200 bg-transparent"
     >
-      🚀 Share This App
+      <Share2 className="w-5 h-5 mr-2" />
+      Share This App
     </Button>
   )
 }

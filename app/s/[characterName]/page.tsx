@@ -1,10 +1,9 @@
-import { characters } from "@/lib/characters"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import Image from "next/image"
-import Link from "next/link"
+import { getCharacter } from "@/lib/characters"
 import { notFound } from "next/navigation"
-import type { Metadata, ResolvingMetadata } from "next"
+import Image from "next/image"
+import { ShareResultButton } from "@/components/share-result-button"
+import { Card, CardContent } from "@/components/ui/card"
+import type { Metadata } from "next"
 
 interface PageProps {
   params: {
@@ -12,162 +11,111 @@ interface PageProps {
   }
 }
 
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const character = getCharacter(params.characterName)
+
+  if (!character) {
+    return {
+      title: "Character Not Found - Horse Facts & Pics",
+    }
+  }
+
+  const baseUrl = process.env.NEXT_PUBLIC_URL || "https://horsefacts-pics.vercel.app"
+
+  return {
+    title: `${character.name} - Horse Facts & Pics`,
+    description: `${character.description} ${character.fact}`,
+    openGraph: {
+      title: `I'm ${character.name}! 🐴 ${character.personality}`,
+      description: character.description,
+      images: [
+        {
+          url: `${baseUrl}/api/generate-og-image?character=${character.id}`,
+          width: 1200,
+          height: 630,
+          alt: `${character.name} - ${character.personality}`,
+        },
+      ],
+      type: "website",
+      siteName: "Horse Facts & Pics",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `I'm ${character.name}! 🐴 ${character.personality}`,
+      description: character.description,
+      images: [`${baseUrl}/api/generate-og-image?character=${character.id}`],
+    },
+  }
+}
+
+export async function generateStaticParams() {
+  const characterIds = [
+    "breathing-expert",
+    "all-seeing-observer",
+    "big-picture-thinker",
+    "efficient-rester",
+    "powerhouse",
+    "lifelong-learner",
+    "efficient-processor",
+    "loyal-friend",
+    "great-communicator",
+    "problem-solver",
+  ]
+
+  return characterIds.map((characterName) => ({
+    characterName,
+  }))
+}
+
 export default function CharacterPage({ params }: PageProps) {
-  const characterName = params.characterName.toLowerCase().replace(/-/g, " ")
-  const character = Object.values(characters).find((char) => char.name.toLowerCase() === characterName)
+  const character = getCharacter(params.characterName)
 
   if (!character) {
     notFound()
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-amber-100 via-orange-50 to-yellow-100 py-8 px-4">
-      <div className="container mx-auto max-w-2xl">
-        <Card className="border-amber-200 bg-white/90 backdrop-blur-sm shadow-xl">
-          <CardHeader className="text-center pb-4">
-            <CardTitle className="text-3xl font-bold text-amber-900 mb-2">
-              {character.emoji} {character.name}
-            </CardTitle>
-            <p className="text-xl font-semibold text-amber-700">{character.trait}</p>
-          </CardHeader>
-          <CardContent className="text-center space-y-6">
-            {/* Character Image */}
-            <div className="relative mx-auto w-80 h-60">
-              <Image
-                src={character.imagePath || "/placeholder.svg"}
-                alt={`Horse Fact ${character.factNumber}`}
-                fill
-                className="object-cover rounded-xl shadow-lg border-4 border-amber-200"
-              />
-              <div className="absolute -top-3 -right-3 bg-amber-500 text-white text-sm font-bold px-3 py-1 rounded-full shadow-lg">
-                Fact #{character.factNumber}
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50">
+      <div className="max-w-4xl mx-auto px-4 py-12">
+        <Card className="border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 overflow-hidden">
+          <CardContent className="p-0">
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-amber-600/20 to-orange-600/20" />
+              <div className="relative p-8 text-center">
+                <div className="mb-8">
+                  <div className="relative w-40 h-40 mx-auto mb-6">
+                    <Image
+                      src={character.image || "/placeholder.svg"}
+                      alt={character.name}
+                      fill
+                      className="object-contain rounded-2xl"
+                    />
+                  </div>
+                  <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">{character.name}</h1>
+                  <p className="text-2xl text-amber-700 font-semibold mb-6">{character.personality}</p>
+                </div>
+
+                <div className="bg-white/80 backdrop-blur-sm rounded-xl p-8 mb-8">
+                  <p className="text-gray-700 text-xl leading-relaxed mb-6">{character.description}</p>
+                  <div className="bg-amber-100 rounded-lg p-6">
+                    <p className="text-lg font-semibold text-amber-800 mb-3">🐴 Horse Fact:</p>
+                    <p className="text-amber-700 text-lg">{character.fact}</p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <ShareResultButton character={character} />
+                  <div className="text-center">
+                    <a href="/" className="text-amber-600 hover:text-amber-700 font-medium text-lg underline">
+                      ← Discover Your Own Horse Personality
+                    </a>
+                  </div>
+                </div>
               </div>
-            </div>
-
-            {/* Description */}
-            <div className="space-y-4">
-              <p className="text-lg text-amber-800 leading-relaxed max-w-lg mx-auto">{character.description}</p>
-
-              {/* Horse Fact */}
-              <div className="bg-gradient-to-r from-amber-50 to-orange-50 p-6 rounded-xl border-2 border-amber-200 max-w-lg mx-auto">
-                <h4 className="font-bold text-amber-900 mb-3 text-lg">🐎 Amazing Horse Fact</h4>
-                <p className="text-amber-800 italic leading-relaxed">{character.fact}</p>
-              </div>
-            </div>
-
-            {/* Call to Action */}
-            <div className="pt-6">
-              <Link href="/">
-                <Button
-                  size="lg"
-                  className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white px-8 py-4 text-lg font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
-                >
-                  🔍 Discover Your Horse Personality
-                </Button>
-              </Link>
             </div>
           </CardContent>
         </Card>
       </div>
-    </main>
+    </div>
   )
-}
-
-export async function generateStaticParams() {
-  return Object.values(characters).map((character) => ({
-    characterName: character.name.toLowerCase().replace(/\s+/g, "-"),
-  }))
-}
-
-export async function generateMetadata({ params }: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
-  const characterNameParam = decodeURIComponent(params.characterName)
-  const character = Object.values(characters).find(
-    (c) => c.name.toLowerCase().replace(/\s+/g, "-") === characterNameParam.toLowerCase(),
-  )
-
-  const appBaseUrl = process.env.NEXT_PUBLIC_URL || "https://horsefacts-pics.vercel.app"
-  const appName = process.env.NEXT_PUBLIC_ONCHAINKIT_PROJECT_NAME || "Horse Facts Analyzer"
-
-  const appIcon = process.env.NEXT_PUBLIC_APP_ICON || "/logo.png"
-  const appIconUrl = appIcon.startsWith("http")
-    ? appIcon
-    : `${appBaseUrl}${appIcon.startsWith("/") ? "" : "/"}${appIcon}`
-
-  const appSplashImage = process.env.NEXT_PUBLIC_APP_SPLASH_IMAGE || "/splash.png"
-  const appSplashImageUrl = appSplashImage.startsWith("http")
-    ? appSplashImage
-    : `${appBaseUrl}${appSplashImage.startsWith("/") ? "" : "/"}${appSplashImage}`
-
-  const appSplashBackgroundColor = process.env.NEXT_PUBLIC_SPLASH_BACKGROUND_COLOR || "#FEF3C7"
-  const defaultFcFrameImage = process.env.NEXT_PUBLIC_APP_HERO_IMAGE || `${appBaseUrl}/banner.png`
-
-  let frameDefinition: any
-
-  if (!character) {
-    frameDefinition = {
-      version: "next",
-      imageUrl: defaultFcFrameImage,
-      button: {
-        title: "Open Horse Facts",
-        action: {
-          type: "launch_frame",
-          name: appName,
-          url: appBaseUrl,
-          splashImageUrl: appSplashImageUrl,
-          splashBackgroundColor: appSplashBackgroundColor,
-        },
-      },
-    }
-    return {
-      title: "Horse Facts Analyzer Result",
-      description: "Discover which horse fact matches your personality!",
-      openGraph: {
-        title: "Horse Facts Analyzer",
-        description: "Which horse fact are you? Find out!",
-        images: [{ url: defaultFcFrameImage }],
-      },
-      other: {
-        "fc:frame": JSON.stringify(frameDefinition),
-      },
-    }
-  }
-
-  const dynamicImageUrl = new URL("/api/generate-og-image", appBaseUrl)
-  dynamicImageUrl.searchParams.set("characterName", characterNameParam)
-  dynamicImageUrl.searchParams.set("characterImage", character.imagePath)
-
-  frameDefinition = {
-    version: "next",
-    imageUrl: dynamicImageUrl.toString(),
-    button: {
-      title: `I'm ${character.name}! Open Analyzer`,
-      action: {
-        type: "launch_frame",
-        name: appName,
-        url: appBaseUrl,
-        splashImageUrl: appSplashImageUrl,
-        splashBackgroundColor: appSplashBackgroundColor,
-      },
-    },
-  }
-
-  return {
-    title: `I'm ${character.name}! - Horse Facts Result`,
-    description: `I discovered I'm ${character.name} using the Horse Facts Analyzer! ${character.description}`,
-    openGraph: {
-      title: `I'm ${character.name}! ${character.emoji}`,
-      description: character.description,
-      images: [
-        {
-          url: dynamicImageUrl.toString(),
-          width: 1200,
-          height: 630,
-          alt: `${character.name} Result`,
-        },
-      ],
-    },
-    other: {
-      "fc:frame": JSON.stringify(frameDefinition),
-    },
-  }
 }

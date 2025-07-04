@@ -1,73 +1,72 @@
-import { characters } from "./characters"
-
-interface PersonalityScore {
-  [key: string]: number
-}
-
 export function analyzePersonality(texts: string[]): string {
   const allText = texts.join(" ").toLowerCase()
-  const scores: PersonalityScore = {}
 
-  // Initialize scores
-  Object.keys(characters).forEach((key) => {
-    scores[key] = 0
-  })
-
-  // Keyword analysis for each personality type
-  const keywordMap = {
-    "breathing-expert": ["focus", "direct", "clear", "simple", "efficient", "breath", "air", "clean"],
-    "all-seeing-observer": ["see", "vision", "opportunity", "future", "aware", "watch", "observe", "notice"],
-    "big-picture-thinker": ["big", "large", "comprehensive", "complete", "grand", "overall", "whole", "entire"],
-    "efficient-rester": ["adapt", "flexible", "balance", "rest", "comfortable", "sleep", "relax", "calm"],
-    powerhouse: ["energy", "power", "strong", "passionate", "amazing", "intense", "force", "drive"],
-    "lifelong-learner": ["learn", "grow", "develop", "study", "improve", "knowledge", "education", "skill"],
-    "efficient-processor": ["efficient", "optimize", "practical", "work", "process", "system", "organize"],
-    "loyal-friend": ["remember", "friend", "loyal", "trust", "relationship", "connection", "bond", "care"],
+  // Define keywords for each personality
+  const personalityKeywords = {
+    "breathing-expert": ["focus", "direct", "clear", "simple", "efficient", "breath", "air", "nose", "direct"],
+    "all-seeing-observer": ["see", "vision", "look", "watch", "observe", "notice", "view", "perspective", "aware"],
+    "big-picture-thinker": ["big", "large", "huge", "massive", "comprehensive", "complete", "grand", "wide", "broad"],
+    "efficient-rester": ["sleep", "rest", "relax", "adapt", "flexible", "balance", "comfortable", "easy", "chill"],
+    powerhouse: ["energy", "power", "strong", "passionate", "amazing", "awesome", "incredible", "intense", "force"],
+    "lifelong-learner": ["learn", "grow", "develop", "study", "improve", "education", "knowledge", "skill", "progress"],
+    "efficient-processor": ["work", "efficient", "optimize", "practical", "process", "system", "organize", "method"],
+    "loyal-friend": ["friend", "loyal", "trust", "remember", "relationship", "connection", "bond", "support"],
     "great-communicator": ["talk", "speak", "communicate", "express", "share", "tell", "conversation", "social"],
-    "problem-solver": ["solve", "solution", "problem", "clever", "strategy", "fix", "answer", "resolve"],
+    "problem-solver": ["solve", "solution", "problem", "fix", "clever", "smart", "strategy", "think", "idea"],
   }
 
+  const scores: Record<string, number> = {}
+
+  // Initialize scores
+  Object.keys(personalityKeywords).forEach((personality) => {
+    scores[personality] = 0
+  })
+
   // Count keyword matches
-  Object.entries(keywordMap).forEach(([personality, keywords]) => {
+  Object.entries(personalityKeywords).forEach(([personality, keywords]) => {
     keywords.forEach((keyword) => {
       const matches = (allText.match(new RegExp(keyword, "g")) || []).length
-      scores[personality] += matches * 2 // Weight keyword matches
+      scores[personality] += matches
     })
   })
 
-  // Emoji analysis (Great Communicator gets bonus for emojis)
+  // Bonus points for specific patterns
   const emojiCount = (
-    allText.match(
-      /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu,
-    ) || []
+    allText.match(/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]/gu) || []
   ).length
-  scores["great-communicator"] += emojiCount
+  if (emojiCount > 5) {
+    scores["great-communicator"] += 3
+  }
 
-  // Punctuation analysis
   const exclamationCount = (allText.match(/!/g) || []).length
+  if (exclamationCount > 3) {
+    scores["powerhouse"] += 2
+  }
+
   const questionCount = (allText.match(/\?/g) || []).length
-
-  scores["powerhouse"] += exclamationCount * 2
-  scores["problem-solver"] += questionCount * 2
-
-  // Text length analysis
-  const avgLength = allText.length / texts.length
-  if (avgLength > 100) {
-    scores["big-picture-thinker"] += 3
-    scores["lifelong-learner"] += 2
-  } else if (avgLength < 30) {
-    scores["breathing-expert"] += 3
-    scores["efficient-processor"] += 2
+  if (questionCount > 2) {
+    scores["problem-solver"] += 2
   }
 
-  // Find the personality with the highest score
-  const topPersonality = Object.entries(scores).reduce((a, b) => (scores[a[0]] > scores[b[0]] ? a : b))[0]
+  // Find personality with highest score
+  let maxScore = 0
+  let selectedPersonality = "breathing-expert"
 
-  // If all scores are 0, return a random personality
-  if (scores[topPersonality] === 0) {
-    const personalities = Object.keys(characters)
-    return personalities[Math.floor(Math.random() * personalities.length)]
+  Object.entries(scores).forEach(([personality, score]) => {
+    if (score > maxScore) {
+      maxScore = score
+      selectedPersonality = personality
+    }
+  })
+
+  // If no clear winner, use text length patterns
+  if (maxScore === 0) {
+    const avgLength = allText.length / texts.length
+    if (avgLength > 100) return "big-picture-thinker"
+    if (avgLength < 30) return "efficient-processor"
+    if (texts.length > 20) return "great-communicator"
+    return "breathing-expert"
   }
 
-  return topPersonality
+  return selectedPersonality
 }

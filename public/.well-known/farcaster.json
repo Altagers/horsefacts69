@@ -1,18 +1,21 @@
 {
-  "accountAssociation": {
-    "header": "eyJmaWQiOjM2MjEsInR5cGUiOiJjdXN0b2R5Iiwia2V5IjoiMHgyY2Q4NWEwOTMyNjFmNTkyNzA4MDRBNkVBNjk3Q2VBNENlQkVjYWZFIn0",
-    "payload": "eyJkb21haW4iOiJob3JzZWZhY3RzLXBpY3MudmVyY2VsLmFwcCJ9",
-    "signature": "MHgwZmJiYWIwODg3YTU2MDFiNDU3MzVkOTQ5MDRjM2Y1NGUxMzVhZTQxOGEzMWQ5ODNhODAzZmZlYWNlZWMyZDYzNWY4ZTFjYWU4M2NhNTAwOTMzM2FmMTc1NDlmMDY2YTVlOWUwNTljNmZiNDUxMzg0Njk1NzBhODNiNjcyZWJjZTFi"
-  },
-  "miniapp": {
-    "version": "1",
+  "frame": {
     "name": "Horse Facts & Pics",
+    "version": "1",
     "iconUrl": "https://horsefacts-pics.vercel.app/logo.png",
     "homeUrl": "https://horsefacts-pics.vercel.app/",
     "imageUrl": "https://horsefacts-pics.vercel.app/banner.png",
-    "buttonTitle": "🐴 Discover Your Horse Personality",
     "splashImageUrl": "https://horsefacts-pics.vercel.app/splash.png",
-    "splashBackgroundColor": "#FEF3C7",
-    "webhookUrl": "https://horsefacts-pics.vercel.app/api/webhook"
+    "splashBackgroundColor": "#5b6b64",
+    "webhookUrl": "https://horsefacts-pics.vercel.app/api/webhook",
+    "subtitle": "Just a horse facts",
+    "description": "Just a horse facts",
+    "screenshotUrls": ["https://horsefacts-pics.vercel.app/banner.png"],
+    "primaryCategory": "art-creativity"
+  },
+  "accountAssociation": {
+    "header": "eyJmaWQiOjIxNzI2MSwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweDA3RjZkOEQzMWY0NjVGY2IyQTEyRjNEMjY3Njc3MDViRUMyMzEzOTkifQ",
+    "payload": "eyJkb21haW4iOiJob3JzZWZhY3RzLXBpY3MudmVyY2VsLmFwcCJ9",
+    "signature": "MHgzZGZhZjU0ZWU0MWEzNDkzNzY4ZjgxNDkzNzQzY2JhYWE5ODc4MDMzMzc0N2RhYTUwMmYzYzg2ZWZmMDg1ZTk1MGMwMzc3Y2YxNTU0NTNkMjUyMWY0NzFlOWE3MGRhNjRmY2ZlNjhjNTNlOGY5MmUzOGY1MjExZGYwMmQ2MGEwMjFj"
   }
 }

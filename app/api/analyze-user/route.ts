@@ -12,43 +12,48 @@ export async function POST(request: NextRequest) {
     console.log("Analyzing user with FID:", fid)
 
     // Get user's casts from Neynar
-    const neynarApiKey = process.env.NEYNAR_API_KEY
-    if (!neynarApiKey) {
-      console.error("NEYNAR_API_KEY is not set")
-      return NextResponse.json({ error: "API configuration error" }, { status: 500 })
-    }
-
-    const castsResponse = await fetch(`https://api.neynar.com/v2/farcaster/feed/user/casts?fid=${fid}&limit=25`, {
+    const neynarResponse = await fetch(`https://api.neynar.com/v2/farcaster/feed/user/casts?fid=${fid}&limit=25`, {
       headers: {
-        "X-API-KEY": neynarApiKey,
+        "X-API-KEY": process.env.NEYNAR_API_KEY || "",
         "Content-Type": "application/json",
       },
     })
 
-    if (!castsResponse.ok) {
-      console.error("Failed to fetch casts:", castsResponse.status, castsResponse.statusText)
+    if (!neynarResponse.ok) {
+      console.error("Neynar API error:", neynarResponse.status, neynarResponse.statusText)
       return NextResponse.json({ error: "Failed to fetch user data" }, { status: 500 })
     }
 
-    const castsData = await castsResponse.json()
-    console.log("Fetched casts:", castsData.casts?.length || 0)
+    const userData = await neynarResponse.json()
+    console.log("Fetched casts:", userData.casts?.length || 0)
 
     // Extract text from casts
-    const texts = castsData.casts?.map((cast: any) => cast.text).filter(Boolean) || []
+    const texts = userData.casts?.map((cast: any) => cast.text).filter(Boolean) || []
 
     if (texts.length === 0) {
       console.log("No texts found, using fallback")
-      // Fallback to a random character if no posts
-      const fallbackCharacters = ["breathing-expert", "all-seeing-observer", "big-picture-thinker"]
-      const randomCharacter = fallbackCharacters[Math.floor(Math.random() * fallbackCharacters.length)]
-      return NextResponse.json({ character: randomCharacter })
+      // Fallback to a random personality if no casts
+      const personalities = [
+        "breathing-expert",
+        "all-seeing-observer",
+        "big-picture-thinker",
+        "efficient-rester",
+        "powerhouse",
+        "lifelong-learner",
+        "efficient-processor",
+        "loyal-friend",
+        "great-communicator",
+        "problem-solver",
+      ]
+      const randomPersonality = personalities[Math.floor(Math.random() * personalities.length)]
+      return NextResponse.json({ character: randomPersonality })
     }
 
-    // Analyze personality using our word-based system
-    const character = analyzePersonality(texts)
-    console.log("Analysis result:", character)
+    // Analyze personality using word-based analysis
+    const personality = analyzePersonality(texts)
+    console.log("Determined personality:", personality)
 
-    return NextResponse.json({ character })
+    return NextResponse.json({ character: personality })
   } catch (error) {
     console.error("Error in analyze-user:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })

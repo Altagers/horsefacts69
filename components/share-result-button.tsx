@@ -1,37 +1,48 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { useMiniKit } from "@coinbase/onchainkit/minikit"
+import { Share2 } from "lucide-react"
 import type { Character } from "@/lib/characters"
+import sdk from "@farcaster/frame-sdk"
+import { useEffect, useState } from "react"
 
 interface ShareResultButtonProps {
   character: Character
 }
 
 export function ShareResultButton({ character }: ShareResultButtonProps) {
-  const { sdk } = useMiniKit()
+  const [isSDKLoaded, setIsSDKLoaded] = useState(false)
 
-  const handleShare = () => {
-    const characterSlug = character.name.toLowerCase().replace(/\s+/g, "-")
-    const shareUrl = `${window.location.origin}/s/${characterSlug}`
+  useEffect(() => {
+    const load = async () => {
+      sdk.actions.ready()
+      setIsSDKLoaded(true)
+    }
+    if (sdk && !isSDKLoaded) {
+      load()
+    }
+  }, [isSDKLoaded])
 
-    const shareText = `I'm ${character.name}! ${character.emoji} ${character.trait}
+  const handleShare = async () => {
+    if (!isSDKLoaded) return
+
+    try {
+      const shareText = `I'm ${character.name}! 🐴 ${character.personality}
 
 ${character.description}
 
-🐎 Horse Fact #${character.factNumber}: ${character.fact}
-
 Discover your horse personality:`
 
-    if (sdk?.actions?.composeCast) {
-      sdk.actions.composeCast({
+      const result = await sdk.actions.composeCast({
         text: shareText,
-        embeds: [shareUrl],
+        embeds: [`${window.location.origin}/s/${character.id}`],
       })
-    } else {
-      // Fallback for environments where SDK is not available
-      const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText + " " + shareUrl)}`
-      window.open(twitterUrl, "_blank")
+
+      if (result.isError) {
+        console.error("Share error:", result.error)
+      }
+    } catch (error) {
+      console.error("Failed to share:", error)
     }
   }
 
@@ -39,9 +50,10 @@ Discover your horse personality:`
     <Button
       onClick={handleShare}
       size="lg"
-      className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-8 py-4 text-lg font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+      className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-8 py-3 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
     >
-      🚀 Share My Result
+      <Share2 className="w-5 h-5 mr-2" />
+      Share My Result
     </Button>
   )
 }

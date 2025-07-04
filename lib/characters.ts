@@ -1,112 +1,109 @@
 export interface Character {
+  id: string
   name: string
-  trait: string
   description: string
+  image: string
   fact: string
-  factNumber: number
-  imagePath: string
-  emoji: string
+  personality: string
 }
 
 export const characters: Record<string, Character> = {
   "breathing-expert": {
+    id: "breathing-expert",
     name: "Breathing Expert",
-    trait: "The Focused Achiever",
     description:
-      "You're direct and focused, just like horses who can only breathe through their nostrils. You know how to concentrate on what matters most and don't get distracted by unnecessary things.",
+      "You're focused and direct, just like horses who can only breathe through their nostrils. You get straight to the point and don't waste time on unnecessary detours.",
+    image: "/1.png",
     fact: "Horses cannot breathe through their mouth – only through their nostrils",
-    factNumber: 1,
-    imagePath: "/1.png",
-    emoji: "🫁",
+    personality: "The Direct Communicator",
   },
   "all-seeing-observer": {
+    id: "all-seeing-observer",
     name: "All-Seeing Observer",
-    trait: "The Visionary",
     description:
-      "You have an incredible ability to see opportunities and perspectives others miss, just like horses with their amazing 360-degree vision. You're always aware of what's happening around you.",
+      "You have incredible awareness and can see opportunities others miss, just like horses with their almost 360-degree vision. You notice details that escape everyone else.",
+    image: "/2.png",
     fact: "Their eyes are located on the sides of their head, providing almost 360-degree vision, but there are blind spots in front and behind",
-    factNumber: 2,
-    imagePath: "/2.png",
-    emoji: "👁️",
+    personality: "The Perceptive Visionary",
   },
   "big-picture-thinker": {
+    id: "big-picture-thinker",
     name: "Big Picture Thinker",
-    trait: "The Comprehensive Viewer",
     description:
-      "You see the world in grand detail and notice things others overlook, just like horses who have the largest eyes among all land mammals. You appreciate the full scope of any situation.",
+      "You see the world in grand scale and comprehensive detail, just like horses who have the largest eyes among all terrestrial mammals. You think big and dream bigger.",
+    image: "/3.png",
     fact: "Horses have the largest eyes among all terrestrial mammals",
-    factNumber: 3,
-    imagePath: "/3.png",
-    emoji: "🔍",
+    personality: "The Visionary Dreamer",
   },
   "efficient-rester": {
+    id: "efficient-rester",
     name: "Efficient Rester",
-    trait: "The Adaptive Balancer",
     description:
-      "You know how to balance efficiency with rest, just like horses who can sleep standing up but know when they need deep rest. You're adaptable and know when to conserve energy.",
-    fact: "They can sleep standing up thanks to a 'locking mechanism' in their joints, but they need to lie down for deep sleep",
-    factNumber: 4,
-    imagePath: "/4.png",
-    emoji: "😴",
+      "You're incredibly adaptable and can find balance anywhere, just like horses who can sleep standing up but know when they need deep rest. You optimize your energy perfectly.",
+    image: "/4.png",
+    fact: 'They can sleep standing up thanks to a "locking mechanism" in their joints, but they need to lie down for deep sleep',
+    personality: "The Balanced Optimizer",
   },
   powerhouse: {
+    id: "powerhouse",
     name: "Powerhouse",
-    trait: "The Energetic Force",
     description:
-      "You have incredible energy and passion that drives everything you do, just like a horse's powerful heart that can pump 250 liters of blood per minute. You bring intensity to every project.",
+      "You have incredible energy and passion that drives everything you do, just like a horse's heart that can pump 250 liters of blood per minute. You bring intensity to every moment.",
+    image: "/5.png",
     fact: "A horse's heart weighs about 4-5 kg and can pump up to 250 liters of blood per minute during intense running",
-    factNumber: 5,
-    imagePath: "/5.png",
-    emoji: "💪",
+    personality: "The Energetic Force",
   },
   "lifelong-learner": {
+    id: "lifelong-learner",
     name: "Lifelong Learner",
-    trait: "The Continuous Grower",
     description:
-      "You never stop growing and learning, just like horse teeth that grow throughout their entire lifetime. You're always developing new skills and expanding your knowledge.",
+      "You're constantly growing and developing, just like horses whose teeth grow throughout their lifetime. You never stop improving and learning new things.",
+    image: "/6.png",
     fact: "Horse teeth grow throughout their lifetime, and their age can be determined by tooth wear",
-    factNumber: 6,
-    imagePath: "/6.png",
-    emoji: "📚",
+    personality: "The Continuous Grower",
   },
   "efficient-processor": {
+    id: "efficient-processor",
     name: "Efficient Processor",
-    trait: "The Streamlined Optimizer",
     description:
-      "You're incredibly efficient at processing and handling complex tasks, just like horses who don't need a gallbladder but still digest perfectly. You find ways to optimize everything.",
+      "You work efficiently and get things done without unnecessary complications, just like horses who digest plant food perfectly without a gallbladder. You optimize everything.",
+    image: "/7.png",
     fact: "Horses don't have a gallbladder, but this doesn't prevent them from digesting plant food",
-    factNumber: 7,
-    imagePath: "/7.png",
-    emoji: "⚡",
+    personality: "The Streamlined Worker",
   },
   "loyal-friend": {
+    id: "loyal-friend",
     name: "Loyal Friend",
-    trait: "The Faithful Connector",
     description:
-      "You have an amazing memory for people and relationships, just like horses who can recognize people after years apart. You value deep, lasting connections with others.",
+      "You have an incredible memory and form lasting relationships, just like horses who can recognize people after years. You value connections and never forget a friend.",
+    image: "/8.png",
     fact: "Horses have excellent memory and can recognize people after years",
-    factNumber: 8,
-    imagePath: "/8.png",
-    emoji: "🤝",
+    personality: "The Faithful Companion",
   },
   "great-communicator": {
+    id: "great-communicator",
     name: "Great Communicator",
-    trait: "The Expressive Connector",
     description:
-      "You're incredibly expressive and great at communicating, just like horses who have more than 17 different facial expressions. You connect with people naturally and share emotions easily.",
+      "You're incredibly expressive and great at communicating, just like horses who have more than 17 different facial expressions. You connect with people naturally.",
+    image: "/9.png",
     fact: "They use facial expressions to communicate, having more than 17 facial expressions",
-    factNumber: 9,
-    imagePath: "/9.png",
-    emoji: "😊",
+    personality: "The Expressive Connector",
   },
   "problem-solver": {
+    id: "problem-solver",
     name: "Problem Solver",
-    trait: "The Clever Innovator",
     description:
-      "You're incredibly clever at figuring out solutions and learning new skills, just like horses who can learn to open doors and use simple mechanisms. You love tackling challenges.",
+      "You're clever and resourceful, always finding creative solutions, just like horses who can learn to open doors and use simple mechanisms. You figure things out.",
+    image: "/10.png",
     fact: "Horses are capable of learning to open doors, unscrew caps, and use simple mechanisms",
-    factNumber: 10,
-    imagePath: "/10.png",
-    emoji: "🧠",
+    personality: "The Creative Innovator",
   },
+}
+
+export function getCharacter(id: string): Character | null {
+  return characters[id] || null
+}
+
+export function getAllCharacters(): Character[] {
+  return Object.values(characters)
 }
