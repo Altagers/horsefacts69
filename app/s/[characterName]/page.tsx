@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     openGraph: {
       title: `I'm ${character.name}! ${character.emoji}`,
       description: `${character.personality} - ${character.description}`,
-      images: [character.image], // Используем статическое изображение персонажа
+      images: [character.image],
       type: "website",
       siteName: "Horse Facts & Pics",
     },
@@ -37,6 +37,28 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title: `I'm ${character.name}! ${character.emoji}`,
       description: `${character.personality} - ${character.description}`,
       images: [character.image],
+    },
+    // Farcaster Frame метаданные для прямого запуска мини-аппа
+    other: {
+      // Основные Frame метаданные
+      "fc:frame": "vNext",
+      "fc:frame:image": `${baseUrl}${character.image}`,
+      "fc:frame:image:aspect_ratio": "1:1",
+
+      // Кнопка для запуска мини-аппа
+      "fc:frame:button:1": `🐴 I'm ${character.name}! Open App`,
+      "fc:frame:button:1:action": "launch_frame",
+      "fc:frame:button:1:target": JSON.stringify({
+        name: "Horse Facts & Pics",
+        url: baseUrl,
+        splashImageUrl: `${baseUrl}/splash.png`,
+        splashBackgroundColor: "#FEF3C7",
+      }),
+
+      // Дополнительные OG метаданные
+      "og:image": `${baseUrl}${character.image}`,
+      "og:image:width": "400",
+      "og:image:height": "400",
     },
   }
 }

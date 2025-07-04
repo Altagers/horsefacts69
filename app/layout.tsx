@@ -6,6 +6,7 @@ import { MiniKitContextProvider } from "@/provider/minikit-provider"
 export const metadata: Metadata = {
   title: "Horse Facts & Pics",
   description: "Discover which amazing horse fact matches your personality based on your Farcaster posts!",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_URL || "https://horsefacts-pics.vercel.app"),
   openGraph: {
     title: "Horse Facts & Pics",
     description: "Discover which amazing horse fact matches your personality based on your Farcaster posts!",
