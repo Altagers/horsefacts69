@@ -24,22 +24,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const ogImageUrl = `${baseUrl}/api/generate-og-image?character=${character.id}`
 
   return {
-    title: `I'm ${character.name}! ${character.emoji} ${character.personality}`,
-    description: `${character.description} Horse Fact: ${character.fact}`,
+    title: `I'm ${character.name}! ${character.emoji}`,
+    description: `${character.personality} - ${character.description}`,
     openGraph: {
       title: `I'm ${character.name}! ${character.emoji}`,
       description: `${character.personality} - ${character.description}`,
-      images: [
-        {
-          url: ogImageUrl,
-          width: 1200,
-          height: 630,
-          alt: `${character.name} - ${character.personality}`,
-        },
-      ],
+      images: [ogImageUrl],
       type: "website",
       siteName: "Horse Facts & Pics",
-      url: `${baseUrl}/s/${character.id}`,
     },
     twitter: {
       card: "summary_large_image",
@@ -47,19 +39,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description: `${character.personality} - ${character.description}`,
       images: [ogImageUrl],
     },
-    // Добавляем правильные метаданные для Farcaster
+    // Простые метаданные для Farcaster
     other: {
       "og:image": ogImageUrl,
       "og:image:width": "1200",
       "og:image:height": "630",
-      "og:image:alt": `${character.name} - ${character.personality}`,
       "twitter:image": ogImageUrl,
-      "fc:frame": "vNext",
-      "fc:frame:image": ogImageUrl,
-      "fc:frame:image:aspect_ratio": "1.91:1",
-      "fc:frame:button:1": `I'm ${character.name}! Open Analyzer`,
-      "fc:frame:button:1:action": "link",
-      "fc:frame:button:1:target": baseUrl,
     },
   }
 }
