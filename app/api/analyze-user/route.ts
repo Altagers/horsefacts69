@@ -1,68 +1,56 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { characters } from "@/lib/characters"
 import { analyzePersonality } from "@/lib/personality-analyzer"
 
-export const maxDuration = 60
-
-export async function POST(request: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
-    const body = await request.json()
-    const fid = body.fid
+    const { fid } = await req.json()
 
     if (!fid) {
-      throw new Error("FID not provided in the request body")
+      return NextResponse.json({ error: "FID is required" }, { status: 400 })
     }
 
-    console.log(`Backend: Received request to analyze FID: ${fid}`)
+    console.log("🔍 Analyzing user with FID:", fid)
 
-    // Check environment variables
-    if (!process.env.NEYNAR_API_KEY) {
-      throw new Error("Neynar API key not configured")
+    // Get user's casts from Neynar
+    const neynarApiKey = process.env.NEYNAR_API_KEY
+    if (!neynarApiKey) {
+      console.error("❌ NEYNAR_API_KEY is missing")
+      return NextResponse.json({ error: "API configuration error" }, { status: 500 })
     }
 
-    console.log(`Backend: Querying Neynar API for FID: ${fid}`)
-
-    // Fetch user casts from Neynar API
     const neynarResponse = await fetch(`https://api.neynar.com/v2/farcaster/feed/user/casts?fid=${fid}&limit=25`, {
-      method: "GET",
       headers: {
-        accept: "application/json",
-        "X-API-KEY": process.env.NEYNAR_API_KEY,
+        "X-API-KEY": neynarApiKey,
+        "Content-Type": "application/json",
       },
     })
 
     if (!neynarResponse.ok) {
-      const errorText = await neynarResponse.text()
-      console.error(`Backend: Neynar API error for FID ${fid}: ${errorText}`)
-      throw new Error(`Neynar API error: ${neynarResponse.status} - ${errorText}`)
+      console.error("❌ Neynar API error:", neynarResponse.status, await neynarResponse.text())
+      return NextResponse.json({ error: "Failed to fetch user data" }, { status: 500 })
     }
 
     const neynarData = await neynarResponse.json()
-    const castTexts = neynarData.casts?.map((cast: any) => cast.text).filter(Boolean) || []
+    console.log("📊 Fetched", neynarData.casts?.length || 0, "casts")
 
-    if (castTexts.length === 0) {
-      console.log(`Backend: No casts found for FID ${fid}. Defaulting to memory.`)
-      return NextResponse.json({ character: characters.memory })
+    // Extract text from casts
+    const texts = neynarData.casts?.map((cast: any) => cast.text).filter(Boolean) || []
+
+    if (texts.length === 0) {
+      console.log("⚠️ No texts found, using fallback")
+      // Return a random character as fallback
+      const fallbackCharacters = ["breathing-expert", "all-seeing-observer", "big-picture-thinker"]
+      const randomCharacter = fallbackCharacters[Math.floor(Math.random() * fallbackCharacters.length)]
+      return NextResponse.json({ character: randomCharacter })
     }
 
-    // Analyze personality using word matching
-    const allPosts = castTexts.slice(0, 20).join(" ")
-    console.log(`Backend: Analyzing ${castTexts.length} cast(s) for FID ${fid}.`)
+    // Analyze personality using our word-based system
+    const character = analyzePersonality(texts)
+    console.log("✅ Analysis complete, result:", character)
 
-    const personalityKey = analyzePersonality(allPosts)
-    const matchedCharacter = characters[personalityKey]
-
-    console.log(`Backend: Matched character for FID ${fid}: ${matchedCharacter.name}`)
-    return NextResponse.json({
-      character: matchedCharacter,
-    })
+    return NextResponse.json({ character })
   } catch (error) {
-    console.error("Backend: Error in analyze-user route:", error)
-    return NextResponse.json(
-      {
-        error: error instanceof Error ? error.message : "Failed to analyze user data",
-      },
-      { status: 500 },
-    )
+    console.error("❌ Analysis error:", error)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
