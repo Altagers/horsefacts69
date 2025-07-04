@@ -1,78 +1,119 @@
-export const characters = {
+// Horse facts to match different personality types
+export interface HorseFactCharacter {
+  name: string
+  emoji: string
+  color: string
+  trait: string
+  description: string
+  factNumber: number
+  imagePath: string
+  fact: string
+}
+
+export const characters: Record<string, HorseFactCharacter> = {
   breathing: {
-    key: "breathing",
     name: "The Breathing Expert",
+    emoji: "🐴",
+    color: "blue",
+    trait: "Focused & Direct",
     description:
-      "Focused and direct. Like horses that can breathe only through their nostrils, you prefer clear pathways and no distractions.",
-    image: "/1.png",
-    fact: "Horses cannot breathe through their mouth – only through their nostrils.",
+      "Like horses who can only breathe through their nostrils, you're focused and direct in your approach to life!",
+    factNumber: 1,
+    imagePath: "/1.png",
+    fact: "Horses cannot breathe through their mouth – only through their nostrils",
   },
   vision: {
-    key: "vision",
     name: "The All-Seeing Observer",
-    description:
-      "Visionary and aware. You see opportunities everywhere, just as horses enjoy almost 360-degree vision.",
-    image: "/2.png",
-    fact: "A horse’s eyes are on the sides of its head, giving it nearly 360-degree vision, with small blind spots in front and behind.",
+    emoji: "👁️",
+    trait: "Visionary & Aware",
+    color: "green",
+    description: "With almost 360-degree awareness like a horse's vision, you see opportunities others miss!",
+    factNumber: 2,
+    imagePath: "/2.png",
+    fact: "Their eyes are located on the sides of their head, providing almost 360-degree vision, but there are blind spots in front and behind",
   },
   eyes: {
-    key: "eyes",
-    name: "The Big-Picture Thinker",
+    name: "The Big Picture Thinker",
+    emoji: "🔍",
+    trait: "Perceptive & Insightful",
+    color: "purple",
     description:
-      "Perceptive and insightful. You take in the grand view, like the horse with the largest eyes of any land mammal.",
-    image: "/3.png",
-    fact: "Horses have the largest eyes among all terrestrial mammals.",
+      "Like horses with the largest eyes among terrestrial mammals, you have a grand perspective on everything!",
+    factNumber: 3,
+    imagePath: "/3.png",
+    fact: "Horses have the largest eyes among all terrestrial mammals",
   },
   sleep: {
-    key: "sleep",
     name: "The Efficient Rester",
+    emoji: "😴",
+    trait: "Adaptable & Resourceful",
+    color: "orange",
     description:
-      "Adaptable and resourceful. You can keep going while standing, but you still value deep rest when needed.",
-    image: "/4.png",
-    fact: "Horses can sleep standing up thanks to a leg-locking mechanism, but must lie down for deep sleep.",
+      "You can adapt to any situation, just like horses who can sleep standing up but know when to rest deeply!",
+    factNumber: 4,
+    imagePath: "/4.png",
+    fact: 'They can sleep standing up thanks to a "locking mechanism" in their joints, but they need to lie down for deep sleep',
   },
   heart: {
-    key: "heart",
     name: "The Powerhouse",
-    description: "Energetic and strong. Your drive pumps like a horse’s heart during a sprint.",
-    image: "/5.png",
-    fact: "A horse’s heart weighs about 4-5 kg and can pump up to 250 litres of blood per minute during intense running.",
+    emoji: "❤️",
+    trait: "Strong & Energetic",
+    color: "red",
+    description: "Your energy is incredible! Like a horse's heart pumping 250 liters per minute, you give your all!",
+    factNumber: 5,
+    imagePath: "/5.png",
+    fact: "A horse's heart weighs about 4-5 kg and can pump up to 250 liters of blood per minute during intense running",
   },
   teeth: {
-    key: "teeth",
     name: "The Lifelong Learner",
-    description: "Always growing and evolving, much like a horse’s teeth that never stop.",
-    image: "/6.png",
-    fact: "Horse teeth grow throughout their life, and age can be estimated from tooth wear.",
+    emoji: "🦷",
+    trait: "Growing & Evolving",
+    color: "yellow",
+    description: "You never stop growing and learning, just like horse teeth that grow throughout their lifetime!",
+    factNumber: 6,
+    imagePath: "/6.png",
+    fact: "Horse teeth grow throughout their lifetime, and their age can be determined by tooth wear",
   },
   digestion: {
-    key: "digestion",
     name: "The Efficient Processor",
-    description:
-      "Resourceful and adaptable, you thrive without excess baggage—just like horses do without a gallbladder.",
-    image: "/7.png",
-    fact: "Horses lack a gallbladder, yet digest plant food perfectly well.",
+    emoji: "🌱",
+    trait: "Resourceful & Adaptable",
+    color: "green",
+    description: "You make the most of what you have, like horses who digest perfectly without a gallbladder!",
+    factNumber: 7,
+    imagePath: "/7.png",
+    fact: "Horses don't have a gallbladder, but this doesn't prevent them from digesting plant food",
   },
   memory: {
-    key: "memory",
     name: "The Loyal Friend",
-    description: "Faithful and memorable. You never forget the people who matter, even after years apart.",
-    image: "/8.png",
-    fact: "Horses have excellent memory and can recognise people even after years apart.",
+    emoji: "🧠",
+    trait: "Memorable & Faithful",
+    color: "blue",
+    description: "Your relationships are deep and lasting, just like horses who remember people after years!",
+    factNumber: 8,
+    imagePath: "/8.png",
+    fact: "Horses have excellent memory and can recognize people after years",
   },
   expression: {
-    key: "expression",
     name: "The Great Communicator",
-    description: "Expressive and social. With more than 17 facial expressions, you always get your point across.",
-    image: "/9.png",
-    fact: "Horses use facial expressions to communicate and have more than 17 identifiable expressions.",
+    emoji: "😊",
+    trait: "Expressive & Social",
+    color: "pink",
+    description:
+      "You're incredibly expressive, using more ways to communicate than most people realize - just like horses with 17+ facial expressions!",
+    factNumber: 9,
+    imagePath: "/9.png",
+    fact: "They use facial expressions to communicate, having more than 17 facial expressions",
   },
   intelligence: {
-    key: "intelligence",
     name: "The Problem Solver",
+    emoji: "🔧",
+    trait: "Clever & Ingenious",
+    color: "purple",
     description:
-      "Clever and ingenious. Like a horse opening gates, you love cracking puzzles and finding work-arounds.",
-    image: "/10.png",
-    fact: "Horses can learn to open doors, unscrew caps and use simple mechanisms.",
+      "You're incredibly clever and can figure out complex solutions, just like horses who learn to open doors and use mechanisms!",
+    factNumber: 10,
+    imagePath: "/10.png",
+    fact: "Horses are capable of learning to open doors, unscrew caps, and use simple mechanisms",
   },
-} as const
+}

@@ -1,70 +1,55 @@
 "use client"
 
-import { useState } from "react"
-import { useMiniKit } from "@coinbase/onchainkit/minikit"
-import type { HorseFactCharacter } from "@/lib/characters"
 import { Button } from "@/components/ui/button"
-import { Share2, RotateCcw } from "lucide-react"
+import { Share2 } from "lucide-react"
+import type { HorseFactCharacter } from "@/lib/characters"
 
 interface ShareResultButtonProps {
   character: HorseFactCharacter
-  onReset: () => void
 }
 
-export function ShareResultButton({ character, onReset }: ShareResultButtonProps) {
-  const { shareFrame } = useMiniKit()
-  const [isSharing, setIsSharing] = useState(false)
+export function ShareResultButton({ character }: ShareResultButtonProps) {
+  const handleShare = () => {
+    const shareUrl = `${window.location.origin}/s/${character.name
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9-]/g, "")}`
+    const shareText = `I'm ${character.name}! ${character.description} 🐴\n\nDiscover your horse personality:`
 
-  const handleShare = async () => {
-    if (!shareFrame) {
-      console.error("shareFrame is not available")
-      return
-    }
-
-    setIsSharing(true)
-    try {
-      const baseUrl = process.env.NEXT_PUBLIC_URL || "https://v0-powerpuff-girls-mg.vercel.app"
-      const shareUrl = `${baseUrl}/s/${encodeURIComponent(character.name.toLowerCase().replace(/\s+/g, "-"))}`
-
-      await shareFrame(shareUrl)
-      console.log("Frame shared successfully!")
-    } catch (error) {
-      console.error("Error sharing frame:", error)
-    } finally {
-      setIsSharing(false)
+    // Try to use native sharing if available
+    if (navigator.share) {
+      navigator
+        .share({
+          title: `I'm ${character.name}!`,
+          text: shareText,
+          url: shareUrl,
+        })
+        .catch(console.error)
+    } else {
+      // Fallback to copying to clipboard
+      const fullText = `${shareText}\n${shareUrl}`
+      navigator.clipboard
+        .writeText(fullText)
+        .then(() => {
+          alert("Copied to clipboard! Share it anywhere you like.")
+        })
+        .catch(() => {
+          // Final fallback - open in new window for manual sharing
+          window.open(
+            `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`,
+            "_blank",
+          )
+        })
     }
   }
 
   return (
-    <div className="flex flex-col gap-3">
-      <Button
-        onClick={handleShare}
-        disabled={isSharing}
-        className="w-full h-12 text-base font-semibold bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200"
-      >
-        {isSharing ? (
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            Sharing...
-          </div>
-        ) : (
-          <div className="flex items-center gap-2">
-            <Share2 className="w-5 h-5" />
-            Share My Horse Fact!
-          </div>
-        )}
-      </Button>
-
-      <Button
-        onClick={onReset}
-        variant="outline"
-        className="w-full h-12 text-base font-medium border-2 border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-800 rounded-2xl transition-all duration-200 bg-transparent"
-      >
-        <div className="flex items-center gap-2">
-          <RotateCcw className="w-4 h-4" />
-          Try Again
-        </div>
-      </Button>
-    </div>
+    <Button
+      onClick={handleShare}
+      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+    >
+      <Share2 className="mr-2 h-4 w-4" />
+      Share Result
+    </Button>
   )
 }
