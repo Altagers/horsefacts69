@@ -65,91 +65,120 @@ export function SentimentAnalyzer() {
 
   if (result) {
     return (
-      <Card className="w-full max-w-2xl mx-auto border-amber-200 bg-white/80 backdrop-blur-sm">
-        <CardHeader className="text-center pb-4">
-          <CardTitle className="text-2xl font-bold text-amber-900">Your Horse Personality!</CardTitle>
-        </CardHeader>
-        <CardContent className="text-center space-y-6">
-          <div className="relative">
-            <Image
-              src={result.imagePath || "/placeholder.svg"}
-              alt={`Horse Fact ${result.factNumber}`}
-              width={400}
-              height={300}
-              className="mx-auto rounded-xl shadow-lg"
-            />
-          </div>
-
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-2xl font-bold text-amber-900 mb-2">
-                {result.emoji} {result.name}
-              </h3>
-              <p className="text-lg font-semibold text-amber-700 mb-3">{result.trait}</p>
-              <p className="text-amber-800 leading-relaxed">{result.description}</p>
+      <div className="w-full max-w-2xl mx-auto">
+        <Card className="border-amber-200 bg-white/90 backdrop-blur-sm shadow-xl">
+          <CardHeader className="text-center pb-4">
+            <CardTitle className="text-3xl font-bold text-amber-900 mb-2">
+              🎉 Your Horse Personality Revealed!
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="text-center space-y-6">
+            {/* Character Image */}
+            <div className="relative mx-auto w-80 h-60">
+              <Image
+                src={result.imagePath || "/placeholder.svg"}
+                alt={`Horse Fact ${result.factNumber}`}
+                fill
+                className="object-cover rounded-xl shadow-lg border-4 border-amber-200"
+              />
+              <div className="absolute -top-3 -right-3 bg-amber-500 text-white text-sm font-bold px-3 py-1 rounded-full shadow-lg">
+                Fact #{result.factNumber}
+              </div>
             </div>
 
-            <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
-              <h4 className="font-semibold text-amber-900 mb-2">🐎 Horse Fact #{result.factNumber}</h4>
-              <p className="text-amber-800 text-sm italic">{result.fact}</p>
-            </div>
-          </div>
+            {/* Character Info */}
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-3xl font-bold text-amber-900 mb-2">
+                  {result.emoji} {result.name}
+                </h3>
+                <p className="text-xl font-semibold text-amber-700 mb-4">{result.trait}</p>
+                <p className="text-lg text-amber-800 leading-relaxed max-w-lg mx-auto">{result.description}</p>
+              </div>
 
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <ShareResultButton character={result} />
-            <Button
-              onClick={() => {
-                setResult(null)
-                setError(null)
-              }}
-              variant="outline"
-              className="border-amber-300 text-amber-700 hover:bg-amber-50"
-            >
-              Analyze Again
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+              {/* Horse Fact */}
+              <div className="bg-gradient-to-r from-amber-50 to-orange-50 p-6 rounded-xl border-2 border-amber-200 max-w-lg mx-auto">
+                <h4 className="font-bold text-amber-900 mb-3 text-lg">🐎 Amazing Horse Fact</h4>
+                <p className="text-amber-800 italic leading-relaxed">{result.fact}</p>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+              <ShareResultButton character={result} onReset={() => setResult(null)} />
+              <Button
+                onClick={() => {
+                  setResult(null)
+                  setError(null)
+                }}
+                variant="outline"
+                size="lg"
+                className="border-2 border-amber-300 text-amber-700 hover:bg-amber-50 font-semibold px-6"
+              >
+                🔄 Try Again
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     )
   }
 
   return (
-    <Card className="w-full max-w-2xl mx-auto border-amber-200 bg-white/80 backdrop-blur-sm">
-      <CardHeader className="text-center">
-        <CardTitle className="text-2xl font-bold text-amber-900">🐴 Discover Your Horse Personality</CardTitle>
-        <p className="text-amber-700">
-          Connect with Farcaster to analyze your posts and discover which horse fact matches your personality!
-        </p>
-      </CardHeader>
-      <CardContent className="text-center space-y-6">
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <p className="text-red-800 text-sm">{error}</p>
-          </div>
-        )}
+    <div className="w-full max-w-2xl mx-auto">
+      {/* Header Image */}
+      <div className="text-center mb-8">
+        <Image
+          src="/banner.png"
+          alt="Horse Facts Banner"
+          width={400}
+          height={200}
+          className="mx-auto rounded-2xl shadow-lg border-4 border-amber-200"
+          priority
+        />
+      </div>
 
-        <Button
-          onClick={handleAnalyze}
-          disabled={isAnalyzing}
-          size="lg"
-          className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
-        >
-          {isAnalyzing ? (
-            <>
-              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-              Analyzing Your Posts...
-            </>
-          ) : (
-            "🔍 Analyze My Personality"
+      <Card className="border-amber-200 bg-white/90 backdrop-blur-sm shadow-xl">
+        <CardHeader className="text-center">
+          <CardTitle className="text-3xl font-bold text-amber-900 mb-4">🐴 Discover Your Horse Personality</CardTitle>
+          <p className="text-lg text-amber-700 leading-relaxed">
+            We'll analyze your Farcaster posts to discover which amazing horse fact matches your unique personality!
+          </p>
+        </CardHeader>
+        <CardContent className="text-center space-y-6">
+          {error && (
+            <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4">
+              <p className="text-red-800 font-medium">{error}</p>
+            </div>
           )}
-        </Button>
 
-        <div className="text-sm text-amber-600 space-y-2">
-          <p>• We'll analyze your recent Farcaster posts</p>
-          <p>• Match you with one of 10 horse personalities</p>
-          <p>• Learn fascinating horse facts about yourself!</p>
-        </div>
-      </CardContent>
-    </Card>
+          <Button
+            onClick={handleAnalyze}
+            disabled={isAnalyzing}
+            size="lg"
+            className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white px-12 py-6 text-xl font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+          >
+            {isAnalyzing ? (
+              <>
+                <Loader2 className="mr-3 h-6 w-6 animate-spin" />
+                Analyzing Your Posts...
+              </>
+            ) : (
+              "🔍 Discover My Horse Fact!"
+            )}
+          </Button>
+
+          <div className="bg-amber-50 rounded-xl p-6 border border-amber-200">
+            <h3 className="font-bold text-amber-900 mb-3">How it works:</h3>
+            <div className="text-amber-700 space-y-2 text-left max-w-md mx-auto">
+              <p>• 📝 We analyze your recent Farcaster posts</p>
+              <p>• 🧠 Match your writing style to horse personalities</p>
+              <p>• 🐎 Discover fascinating horse facts about yourself!</p>
+              <p>• 🎉 Share your result with friends</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   )
 }

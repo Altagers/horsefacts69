@@ -1,10 +1,9 @@
-import { notFound } from "next/navigation"
-import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ShareResultButton } from "@/components/share-result-button"
 import { characters } from "@/lib/characters"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import Image from "next/image"
 import Link from "next/link"
+import { notFound } from "next/navigation"
 
 interface PageProps {
   params: {
@@ -12,95 +11,93 @@ interface PageProps {
   }
 }
 
-// Generate static params for all characters
-export function generateStaticParams() {
-  return Object.values(characters).map((character) => ({
-    characterName: character.name
-      .toLowerCase()
-      .replace(/\s+/g, "-")
-      .replace(/[^a-z0-9-]/g, ""),
-  }))
-}
-
 export default function CharacterPage({ params }: PageProps) {
-  // Find character by matching the URL-friendly name
-  const character = Object.values(characters).find(
-    (char) =>
-      char.name
-        .toLowerCase()
-        .replace(/\s+/g, "-")
-        .replace(/[^a-z0-9-]/g, "") === params.characterName,
-  )
+  // Find character by name (case insensitive, handle spaces and dashes)
+  const characterName = params.characterName.toLowerCase().replace(/-/g, " ")
+  const character = Object.values(characters).find((char) => char.name.toLowerCase() === characterName)
 
   if (!character) {
     notFound()
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50">
-      {/* Header */}
-      <header className="border-b border-amber-200/50 bg-white/80 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <Image src="/logo.png" alt="Horse Facts Logo" width={40} height={40} className="rounded-lg" />
-              <h1 className="text-xl font-bold text-amber-900">Horse Facts & Pics</h1>
-            </div>
-            <Link href="/">
-              <Button variant="ghost" className="text-amber-700 hover:text-amber-900">
-                Take Quiz
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        <Card className="w-full max-w-2xl mx-auto border-amber-200 bg-white/80 backdrop-blur-sm">
+    <main className="min-h-screen bg-gradient-to-br from-amber-100 via-orange-50 to-yellow-100 py-8 px-4">
+      <div className="container mx-auto max-w-2xl">
+        <Card className="border-amber-200 bg-white/90 backdrop-blur-sm shadow-xl">
           <CardHeader className="text-center pb-4">
-            <CardTitle className="text-2xl font-bold text-amber-900">Horse Personality Result</CardTitle>
+            <CardTitle className="text-3xl font-bold text-amber-900 mb-2">
+              {character.emoji} {character.name}
+            </CardTitle>
+            <p className="text-xl font-semibold text-amber-700">{character.trait}</p>
           </CardHeader>
           <CardContent className="text-center space-y-6">
-            <div className="relative">
+            {/* Character Image */}
+            <div className="relative mx-auto w-80 h-60">
               <Image
                 src={character.imagePath || "/placeholder.svg"}
                 alt={`Horse Fact ${character.factNumber}`}
-                width={400}
-                height={300}
-                className="mx-auto rounded-xl shadow-lg"
+                fill
+                className="object-cover rounded-xl shadow-lg border-4 border-amber-200"
               />
+              <div className="absolute -top-3 -right-3 bg-amber-500 text-white text-sm font-bold px-3 py-1 rounded-full shadow-lg">
+                Fact #{character.factNumber}
+              </div>
             </div>
 
+            {/* Description */}
             <div className="space-y-4">
-              <div>
-                <h3 className="text-2xl font-bold text-amber-900 mb-2">
-                  {character.emoji} {character.name}
-                </h3>
-                <p className="text-lg font-semibold text-amber-700 mb-3">{character.trait}</p>
-                <p className="text-amber-800 leading-relaxed">{character.description}</p>
-              </div>
+              <p className="text-lg text-amber-800 leading-relaxed max-w-lg mx-auto">{character.description}</p>
 
-              <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
-                <h4 className="font-semibold text-amber-900 mb-2">🐎 Horse Fact #{character.factNumber}</h4>
-                <p className="text-amber-800 text-sm italic">{character.fact}</p>
+              {/* Horse Fact */}
+              <div className="bg-gradient-to-r from-amber-50 to-orange-50 p-6 rounded-xl border-2 border-amber-200 max-w-lg mx-auto">
+                <h4 className="font-bold text-amber-900 mb-3 text-lg">🐎 Amazing Horse Fact</h4>
+                <p className="text-amber-800 italic leading-relaxed">{character.fact}</p>
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <ShareResultButton character={character} />
+            {/* Call to Action */}
+            <div className="pt-6">
               <Link href="/">
                 <Button
-                  variant="outline"
-                  className="border-amber-300 text-amber-700 hover:bg-amber-50 w-full sm:w-auto bg-transparent"
+                  size="lg"
+                  className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white px-8 py-4 text-lg font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
                 >
-                  Take Quiz Again
+                  🔍 Discover Your Horse Personality
                 </Button>
               </Link>
             </div>
           </CardContent>
         </Card>
-      </main>
-    </div>
+      </div>
+    </main>
   )
+}
+
+// Generate static params for all characters
+export async function generateStaticParams() {
+  return Object.values(characters).map((character) => ({
+    characterName: character.name.toLowerCase().replace(/\s+/g, "-"),
+  }))
+}
+
+// Generate metadata for SEO
+export async function generateMetadata({ params }: PageProps) {
+  const characterName = params.characterName.toLowerCase().replace(/-/g, " ")
+  const character = Object.values(characters).find((char) => char.name.toLowerCase() === characterName)
+
+  if (!character) {
+    return {
+      title: "Character Not Found",
+    }
+  }
+
+  return {
+    title: `${character.name} - Horse Facts Personality`,
+    description: character.description,
+    openGraph: {
+      title: `I'm ${character.name}!`,
+      description: character.description,
+      images: [character.imagePath],
+    },
+  }
 }

@@ -1,22 +1,19 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Share2 } from "lucide-react"
 import type { HorseFactCharacter } from "@/lib/characters"
 
 interface ShareResultButtonProps {
   character: HorseFactCharacter
+  onReset?: () => void
 }
 
-export function ShareResultButton({ character }: ShareResultButtonProps) {
+export function ShareResultButton({ character, onReset }: ShareResultButtonProps) {
   const handleShare = () => {
-    const shareUrl = `${window.location.origin}/s/${character.name
-      .toLowerCase()
-      .replace(/\s+/g, "-")
-      .replace(/[^a-z0-9-]/g, "")}`
-    const shareText = `I'm ${character.name}! ${character.description} 🐴\n\nDiscover your horse personality:`
+    const shareText = `I just discovered I'm "${character.name}" - ${character.trait}! 🐴\n\n${character.description}\n\nDiscover your horse personality:`
+    const shareUrl = `${window.location.origin}/s/${character.name.toLowerCase().replace(/\s+/g, "-")}`
 
-    // Try to use native sharing if available
+    // Try to use Web Share API if available
     if (navigator.share) {
       navigator
         .share({
@@ -27,14 +24,13 @@ export function ShareResultButton({ character }: ShareResultButtonProps) {
         .catch(console.error)
     } else {
       // Fallback to copying to clipboard
-      const fullText = `${shareText}\n${shareUrl}`
       navigator.clipboard
-        .writeText(fullText)
+        .writeText(`${shareText}\n${shareUrl}`)
         .then(() => {
-          alert("Copied to clipboard! Share it anywhere you like.")
+          alert("Result copied to clipboard!")
         })
         .catch(() => {
-          // Final fallback - open in new window for manual sharing
+          // Final fallback - open in new window
           window.open(
             `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`,
             "_blank",
@@ -46,10 +42,10 @@ export function ShareResultButton({ character }: ShareResultButtonProps) {
   return (
     <Button
       onClick={handleShare}
-      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+      size="lg"
+      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
     >
-      <Share2 className="mr-2 h-4 w-4" />
-      Share Result
+      🚀 Share My Result
     </Button>
   )
 }

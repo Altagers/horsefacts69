@@ -11,7 +11,7 @@ export default function HomePage() {
   const [showAnalyzer, setShowAnalyzer] = useState(false)
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50">
+    <div className="min-h-screen bg-gradient-to-br from-amber-100 via-orange-50 to-yellow-100 py-8 px-4">
       {/* Header */}
       <header className="border-b border-amber-200/50 bg-white/80 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-4">
