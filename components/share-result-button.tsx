@@ -1,64 +1,70 @@
 "use client"
 
 import { useState } from "react"
-import { sdk } from "@farcaster/frame-sdk"
-import { PpgButton } from "./ppg-button"
-import type { PowerPuffCharacter } from "@/lib/characters"
+import { useMiniKit } from "@coinbase/onchainkit/minikit"
+import type { HorseFactCharacter } from "@/lib/characters"
+import { Button } from "@/components/ui/button"
+import { Share2, RotateCcw } from "lucide-react"
 
 interface ShareResultButtonProps {
-  character: PowerPuffCharacter
+  character: HorseFactCharacter
   onReset: () => void
 }
 
 export function ShareResultButton({ character, onReset }: ShareResultButtonProps) {
-  const [status, setStatus] = useState<"idle" | "loading" | "error">("idle")
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
-
-  const appBaseUrl = "https://v0-mini-open-ai.vercel.app" // Hardcoded for reliability
+  const { shareFrame } = useMiniKit()
+  const [isSharing, setIsSharing] = useState(false)
 
   const handleShare = async () => {
-    setStatus("loading")
-    setErrorMessage(null)
+    if (!shareFrame) {
+      console.error("shareFrame is not available")
+      return
+    }
 
-    // Construct the URL for the shareable HTML page
-    // Example: https://v0-mini-open-ai.vercel.app/s/Bubbles
-    const sharePageUrl = new URL(`/s/${encodeURIComponent(character.name)}`, appBaseUrl).toString()
-
-    const castText = `I'm ${character.name}! ${character.emoji} Which PowerPuff Girl are you? Find out on PowerPuff Analyzer!`
-
+    setIsSharing(true)
     try {
-      await sdk.actions.composeCast({
-        text: castText,
-        embeds: [sharePageUrl], // Embed the URL of the HTML page with OG tags
-      })
-      setStatus("idle")
+      const baseUrl = process.env.NEXT_PUBLIC_URL || "https://v0-powerpuff-girls-mg.vercel.app"
+      const shareUrl = `${baseUrl}/s/${encodeURIComponent(character.name.toLowerCase().replace(/\s+/g, "-"))}`
+
+      await shareFrame(shareUrl)
+      console.log("Frame shared successfully!")
     } catch (error) {
-      console.error("❌ Failed to share cast:", error)
-      setStatus("error")
-      setErrorMessage("Failed to open Farcaster composer.")
+      console.error("Error sharing frame:", error)
+    } finally {
+      setIsSharing(false)
     }
   }
 
-  const characterPpgColors: Record<string, "primary" | "bubbles" | "blossom" | "buttercup" | "mojo"> = {
-    Bubbles: "bubbles",
-    Blossom: "blossom",
-    Buttercup: "buttercup",
-    "Mojo Jojo": "mojo",
-  }
-  const buttonVariant = characterPpgColors[character.name] || "primary"
-
   return (
-    <div className="w-full flex flex-col items-center gap-4">
-      <PpgButton
+    <div className="flex flex-col gap-3">
+      <Button
         onClick={handleShare}
-        disabled={status === "loading"}
-        variant={buttonVariant}
-        className="w-full text-xl"
-        sparkles
+        disabled={isSharing}
+        className="w-full h-12 text-base font-semibold bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200"
       >
-        {status === "loading" ? "Preparing Share..." : `Share Your Result!`}
-      </PpgButton>
-      {status === "error" && <p className="text-red-500 font-body mt-2">{errorMessage}</p>}
+        {isSharing ? (
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            Sharing...
+          </div>
+        ) : (
+          <div className="flex items-center gap-2">
+            <Share2 className="w-5 h-5" />
+            Share My Horse Fact!
+          </div>
+        )}
+      </Button>
+
+      <Button
+        onClick={onReset}
+        variant="outline"
+        className="w-full h-12 text-base font-medium border-2 border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-800 rounded-2xl transition-all duration-200 bg-transparent"
+      >
+        <div className="flex items-center gap-2">
+          <RotateCcw className="w-4 h-4" />
+          Try Again
+        </div>
+      </Button>
     </div>
   )
 }

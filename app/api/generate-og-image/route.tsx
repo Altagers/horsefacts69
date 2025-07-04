@@ -8,33 +8,25 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
     const characterName = searchParams.get("characterName")
-    const characterImagePublicPath = searchParams.get("characterImage") // e.g., /bubbles.png
+    const characterImagePublicPath = searchParams.get("characterImage")
 
-    // Hardcode the base URL for reliability
-    const baseUrl = "https://v0-mini-open-ai.vercel.app"
+    const baseUrl = process.env.NEXT_PUBLIC_URL || "https://v0-powerpuff-girls-mg.vercel.app"
 
     if (!characterName || !characterImagePublicPath) {
       return new Response("Missing character information", { status: 400 })
     }
 
-    // Construct absolute URL for the character image
     const characterImageUrl = new URL(characterImagePublicPath, baseUrl).toString()
 
-    const characterData = Object.values(characters).find((c) => c.name === characterName)
+    const characterData = Object.values(characters).find(
+      (c) => c.name.toLowerCase().replace(/\s+/g, "-") === characterName.toLowerCase(),
+    )
+
     if (!characterData) {
       return new Response("Character not found", { status: 404 })
     }
 
-    const bgColor =
-      characterData.name === "Bubbles"
-        ? "#73D2F3" // Bubbles Blue
-        : characterData.name === "Blossom"
-          ? "#F283B3" // Blossom Pink
-          : characterData.name === "Buttercup"
-            ? "#A2E5B3" // Buttercup Green
-            : characterData.name === "Mojo Jojo"
-              ? "#C084FC" // Mojo Purple
-              : "#F9A826" // Default Yellow/Orange
+    const bgGradient = "linear-gradient(135deg, #FEF3C7 0%, #FED7AA 50%, #FBBF24 100%)"
 
     return new ImageResponse(
       <div
@@ -45,39 +37,95 @@ export async function GET(req: NextRequest) {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: bgColor,
+          background: bgGradient,
           padding: "40px",
-          border: "10px solid black",
-          borderRadius: "30px",
+          fontFamily: "system-ui, sans-serif",
         }}
       >
-        <img
-          src={characterImageUrl || "/placeholder.svg"}
-          width={300}
-          height={300}
-          style={{ borderRadius: "50%", border: "8px solid black", marginBottom: "30px" }}
-          alt={characterName}
-        />
-        <h1
+        {/* Header */}
+        <div
           style={{
-            fontSize: "82px",
-            fontWeight: "bold",
-            color: "white",
-            textShadow: "4px 4px 0 black, -4px -4px 0 black, 4px -4px 0 black, -4px 4px 0 black",
-            margin: "0 0 20px 0",
-            textAlign: "center",
-            lineHeight: 1.1,
+            display: "flex",
+            alignItems: "center",
+            gap: "16px",
+            marginBottom: "32px",
           }}
         >
-          You are {characterName}! {characterData.emoji}
-        </h1>
+          <div style={{ fontSize: "48px" }}>🐴</div>
+          <h1
+            style={{
+              fontSize: "48px",
+              fontWeight: "bold",
+              color: "#1F2937",
+              margin: 0,
+            }}
+          >
+            Horse Facts
+          </h1>
+          <div style={{ fontSize: "48px", transform: "scaleX(-1)" }}>🐴</div>
+        </div>
+
+        {/* Character Image */}
+        <img
+          src={characterImageUrl || "/placeholder.svg"}
+          width={280}
+          height={280}
+          style={{
+            borderRadius: "20px",
+            border: "6px solid white",
+            boxShadow: "0 20px 40px rgba(0,0,0,0.1)",
+            marginBottom: "32px",
+          }}
+          alt={characterData.name}
+        />
+
+        {/* Character Info */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "12px",
+            marginBottom: "24px",
+          }}
+        >
+          <span style={{ fontSize: "32px" }}>{characterData.emoji}</span>
+          <h2
+            style={{
+              fontSize: "42px",
+              fontWeight: "bold",
+              color: "#1F2937",
+              margin: 0,
+              textAlign: "center",
+            }}
+          >
+            I'm {characterData.name}!
+          </h2>
+        </div>
+
+        {/* Fact Number Badge */}
+        <div
+          style={{
+            background: "#F59E0B",
+            color: "white",
+            fontSize: "24px",
+            fontWeight: "bold",
+            padding: "8px 20px",
+            borderRadius: "20px",
+            marginBottom: "20px",
+          }}
+        >
+          Horse Fact #{characterData.factNumber}
+        </div>
+
+        {/* Description */}
         <p
           style={{
-            fontSize: "32px",
-            color: "black",
+            fontSize: "28px",
+            color: "#374151",
             textAlign: "center",
             maxWidth: "90%",
-            lineHeight: 1.3,
+            lineHeight: 1.4,
+            margin: 0,
           }}
         >
           {characterData.description}

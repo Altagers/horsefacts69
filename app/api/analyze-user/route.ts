@@ -1,121 +1,108 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { generateText } from "ai"
-import { openai } from "@ai-sdk/openai"
-import { characters } from "@/lib/characters" // Ensure this path is correct
+import OpenAI from "openai"
+import { characters } from "@/lib/characters"
 
-export const maxDuration = 60
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+})
 
-export async function POST(request: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
-    const body = await request.json()
-    const fid = body.fid // Get FID from request body
+    const { fid } = await req.json()
 
     if (!fid) {
-      throw new Error("FID not provided in the request body")
+      return NextResponse.json({ error: "FID is required" }, { status: 400 })
     }
 
-    console.log(`Backend: Received request to analyze FID: ${fid}`) // Log the FID being queried
+    console.log(`API: Analyzing user with FID: ${fid}`)
 
-    // 1. Fetch user casts from Neynar API
-    if (!process.env.NEYNAR_API_KEY) {
-      throw new Error("Neynar API key not configured")
-    }
-    if (!process.env.OPENAI_API_KEY) {
-      throw new Error("OpenAI API key not configured")
-    }
-
-    console.log(`Backend: Querying Neynar API for FID: ${fid}`) // Log before Neynar call
-
-    const neynarResponse = await fetch(`https://api.neynar.com/v2/farcaster/feed/user/popular?fid=${fid}&limit=10`, {
-      method: "GET",
+    // Fetch user's casts from Neynar
+    const neynarResponse = await fetch(`https://api.neynar.com/v2/farcaster/feed/user/casts?fid=${fid}&limit=25`, {
       headers: {
-        accept: "application/json",
-        api_key: process.env.NEYNAR_API_KEY,
+        "X-API-KEY": process.env.NEYNAR_API_KEY!,
       },
     })
 
     if (!neynarResponse.ok) {
-      const errorText = await neynarResponse.text()
-      console.error(`Backend: Neynar API error for FID ${fid}: ${errorText}`)
-      throw new Error(`Neynar API error: ${neynarResponse.status} - ${errorText}`)
+      throw new Error(`Neynar API error: ${neynarResponse.status}`)
     }
 
     const neynarData = await neynarResponse.json()
-    const castTexts = neynarData.casts?.map((cast: any) => cast.text).filter(Boolean) || []
+    const casts = neynarData.casts || []
 
-    if (castTexts.length === 0) {
-      console.log(`Backend: No casts found for FID ${fid}. Defaulting to Bubbles.`)
-      // If no casts, default to Bubbles (or handle as preferred)
-      return NextResponse.json({ character: characters.bubbles })
+    if (casts.length === 0) {
+      return NextResponse.json({ error: "No posts found for analysis" }, { status: 404 })
     }
 
-    // 2. Prepare the prompt and call OpenAI API
-    const allPosts = castTexts.join("\n---\n")
-    console.log(`Backend: Sending ${castTexts.length} cast(s) to OpenAI for FID ${fid}.`)
+    // Extract text content from casts
+    const postTexts = casts
+      .map((cast: any) => cast.text)
+      .filter((text: string) => text && text.trim().length > 0)
+      .slice(0, 20) // Limit to 20 most recent posts
 
-    const { text: characterName } = await generateText({
-      model: openai("gpt-4o-mini"),
-      system: `You are a personality analyzer for PowerPuff Girls characters. Analyze the user's posts and determine which character they match best. Be specific and look for distinct patterns:
+    if (postTexts.length === 0) {
+      return NextResponse.json({ error: "No text content found in posts" }, { status: 404 })
+    }
 
-BUBBLES - The Joy Spreader:
-- Uses lots of positive language, emojis, exclamation points
-- Shares wholesome content, compliments others frequently
-- Posts about cute things, animals, friendship, love
-- Optimistic even about challenges, sees good in everything
-- Language: "amazing!", "so cute!", "love this!", "wholesome", "sweet"
+    console.log(`API: Found ${postTexts.length} posts to analyze`)
 
-BLOSSOM - The Strategic Leader:
-- Shares informative content, explains complex topics
-- Takes charge in conversations, offers solutions
-- Posts about planning, organization, learning, teaching
-- Uses structured thinking, bullet points, step-by-step approaches
-- Language: "strategy", "plan", "analyze", "solution", "research", "data"
+    // Analyze with OpenAI
+    const prompt = `
+    Analyze these social media posts and determine which horse fact personality they match best. 
+    
+    Here are the horse fact personalities:
+    1. The Breathing Expert - Focused, direct, respiratory specialist (horses breathe only through nostrils)
+    2. The All-Seeing Observer - Visionary, aware, sees opportunities (horses have 360-degree vision)
+    3. The Big Picture Thinker - Perceptive, insightful, grand perspective (horses have largest eyes among land mammals)
+    4. The Efficient Rester - Adaptable, resourceful, knows when to rest (horses sleep standing up)
+    5. The Powerhouse - Strong, energetic, gives their all (horse heart pumps 250L/min)
+    6. The Lifelong Learner - Growing, evolving, never stops learning (horse teeth grow throughout life)
+    7. The Efficient Processor - Resourceful, adaptable, makes most of what they have (horses digest without gallbladder)
+    8. The Loyal Friend - Memorable, faithful, deep relationships (horses remember people for years)
+    9. The Great Communicator - Expressive, social, great at communication (horses have 17+ facial expressions)
+    10. The Problem Solver - Clever, ingenious, figures out solutions (horses learn to open doors)
 
-BUTTERCUP - The Rebel Fighter:
-- Direct, blunt communication style
-- Challenges popular opinions, calls out problems
-- Posts about injustice, fighting for causes, being authentic
-- Uses strong language, doesn't sugarcoat things
-- Language: "fight", "real talk", "honestly", "enough", "stand up", sarcasm
+    Posts to analyze:
+    ${postTexts.join("\n---\n")}
 
-MOJO JOJO - The Mastermind:
-- Complex, elaborate posts with sophisticated vocabulary
-- Shares grand theories, ambitious projects, intellectual pursuits
-- Posts about power, influence, complex schemes or ideas
-- Verbose, dramatic language, talks about "plans" and "domination"
-- Language: "brilliant", "scheme", "dominate", "superior", "elaborate", "mastermind"
+    Based on the writing style, topics, and personality shown in these posts, which horse fact personality matches best? 
+    Respond with just the key from this list: breathing, vision, eyes, sleep, heart, teeth, digestion, memory, expression, intelligence
+    `
 
-Respond with ONLY the character name that best matches the overall pattern. Consider the dominant themes, not just individual posts.`,
-      prompt: `Analyze these social media posts and determine which PowerPuff Girls character this person is most like:\n\n${allPosts}`,
-      maxTokens: 15,
-      temperature: 0.4, // Increased from 0.2 for more variety
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are an expert at analyzing social media posts to determine personality types based on horse facts. Respond with only the single key word that matches the personality.",
+        },
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+      max_tokens: 50,
+      temperature: 0.7,
     })
 
-    console.log(`Backend: OpenAI response for FID ${fid}: ${characterName}`)
+    const result = completion.choices[0]?.message?.content?.trim().toLowerCase()
+    console.log(`API: OpenAI analysis result: ${result}`)
 
-    // 3. Map the OpenAI response to our character data
-    const normalizedCharacterName = characterName.trim().toLowerCase()
-    const matchedCharacter = characters[normalizedCharacterName]
+    // Map result to character
+    const character = characters[result as keyof typeof characters] || characters.memory // Default fallback
 
-    if (!matchedCharacter) {
-      console.error(
-        `Backend: OpenAI returned an unknown character for FID ${fid}: '${characterName}'. Defaulting to Bubbles.`,
-      )
-      // Fallback if OpenAI returns an unexpected value
-      return NextResponse.json({ character: characters.bubbles }) // Default to Bubbles
-    }
+    console.log(`API: Selected character: ${character.name}`)
 
-    console.log(`Backend: Matched character for FID ${fid}: ${matchedCharacter.name}`)
     return NextResponse.json({
-      character: matchedCharacter,
+      character,
+      analysis: {
+        postsAnalyzed: postTexts.length,
+        selectedPersonality: result,
+      },
     })
   } catch (error) {
-    console.error("Backend: Error in analyze-user route:", error)
-    return NextResponse.json(
-      {
-        error: error instanceof Error ? error.message : "Failed to analyze user data",
-      },
-      { status: 500 },
-    )
+    console.error("Analysis error:", error)
+    return NextResponse.json({ error: "Failed to analyze posts. Please try again." }, { status: 500 })
   }
 }

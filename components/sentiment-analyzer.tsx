@@ -2,20 +2,21 @@
 
 import { useState } from "react"
 import { useMiniKit } from "@coinbase/onchainkit/minikit"
-import type { PowerPuffCharacter } from "@/lib/characters"
+import type { HorseFactCharacter } from "@/lib/characters"
 import Image from "next/image"
-import { PpgButton } from "./ppg-button"
-import { ShareResultButton } from "./share-result-button" // Import the new component
+import { Button } from "@/components/ui/button"
+import { ShareResultButton } from "./share-result-button"
+import { DogIcon as Horse, Sparkles } from "lucide-react"
 
-const PowerPuffGirlsHeaderImage = () => (
-  <div className=" flex justify-center">
-    <div>
+const HorseFactsHeaderImage = () => (
+  <div className="flex justify-center mb-8">
+    <div className="relative">
       <Image
-        src="/hero_powerpuff.png"
-        alt="The PowerPuff Girls"
-        width={280}
-        height={140}
-        className="object-cover"
+        src="/banner.png"
+        alt="Horse Facts Banner"
+        width={320}
+        height={160}
+        className="object-cover rounded-2xl shadow-lg"
         priority
       />
     </div>
@@ -23,7 +24,7 @@ const PowerPuffGirlsHeaderImage = () => (
 )
 
 type AnalysisResult = {
-  character: PowerPuffCharacter
+  character: HorseFactCharacter
 }
 
 export function SentimentAnalyzer() {
@@ -33,10 +34,10 @@ export function SentimentAnalyzer() {
   const [error, setError] = useState<string | null>(null)
 
   const handleAnalyze = async () => {
-    const userFid = context?.user?.fid // Get FID from MiniKit context
+    const userFid = context?.user?.fid
 
     if (!userFid) {
-      setError("Please connect your Farcaster account (via Wallet) to analyze posts.")
+      setError("Please connect your Farcaster account to analyze your posts.")
       setLoading(false)
       setResult(null)
       return
@@ -54,7 +55,7 @@ export function SentimentAnalyzer() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ fid: userFid }), // Send the connected user's FID
+        body: JSON.stringify({ fid: userFid }),
       })
       const data = await response.json()
       if (!response.ok || data.error) throw new Error(data.error || "Analysis failed")
@@ -72,28 +73,45 @@ export function SentimentAnalyzer() {
 
   return (
     <div className="w-full max-w-md mx-auto">
-      <PowerPuffGirlsHeaderImage />
-      <div className="relative bg-[#F9A826] border-[5px] border-black rounded-[40px] p-6 pt-8 text-center shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-        <h1 className="font-heading text-5xl md:text-6xl leading-none text-ppg-title mb-8 relative">
-          Which
-          <br />
-          Powerpuff
-          <br />
-          Girl Are You?
-        </h1>
-        <PpgButton
+      <HorseFactsHeaderImage />
+
+      <div className="bg-white/80 backdrop-blur-sm border border-gray-200 rounded-3xl p-8 shadow-xl">
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <Horse className="w-8 h-8 text-amber-600" />
+            <h2 className="text-3xl font-bold text-gray-800">What Horse Fact Are You?</h2>
+            <Horse className="w-8 h-8 text-amber-600 scale-x-[-1]" />
+          </div>
+          <p className="text-gray-600 leading-relaxed">
+            Let us analyze your Farcaster posts to discover which amazing horse fact matches your personality!
+          </p>
+        </div>
+
+        <Button
           onClick={handleAnalyze}
           disabled={loading || !context?.user?.fid}
-          variant="buttercup"
-          className="w-full text-xl"
-          sparkles
+          className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading ? "Analyzing..." : !context?.user?.fid ? "Connect Wallet to Analyze" : "Analyze My Posts!"}
-        </PpgButton>
+          {loading ? (
+            <div className="flex items-center gap-2">
+              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              Analyzing Your Posts...
+            </div>
+          ) : !context?.user?.fid ? (
+            "Connect Wallet to Analyze"
+          ) : (
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5" />
+              Discover My Horse Fact!
+              <Sparkles className="w-5 h-5" />
+            </div>
+          )}
+        </Button>
       </div>
+
       {error && (
-        <div className="mt-6 p-4 bg-red-400 border-4 border-black rounded-2xl text-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-          <p className="text-white font-heading text-2xl text-ppg-button-light">{error}</p>
+        <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-2xl text-center">
+          <p className="text-red-700 font-medium">{error}</p>
         </div>
       )}
     </div>
@@ -101,46 +119,49 @@ export function SentimentAnalyzer() {
 }
 
 function ResultScreen({ result, onReset }: { result: AnalysisResult; onReset: () => void }) {
-  const characterPpgColors: Record<string, "primary" | "bubbles" | "blossom" | "buttercup" | "mojo"> = {
-    Bubbles: "bubbles",
-    Blossom: "blossom",
-    Buttercup: "buttercup",
-    "Mojo Jojo": "mojo",
-  }
-
-  const characterImagePlaceholders: Record<string, string> = {
-    Bubbles: "/bubbles.png",
-    Blossom: "/blossom.png",
-    Buttercup: "/buttercup.png",
-    "Mojo Jojo": "/mojo.png",
-  }
-
-  const characterName = result.character.name
-  const buttonVariant = characterPpgColors[characterName] || "primary"
+  const character = result.character
 
   return (
-    <div className="w-full max-w-md mx-auto p-4 md:p-6 flex flex-col items-center">
-      <PpgButton variant={buttonVariant} className="mb-8 w-full md:w-auto text-3xl" disabled sparkles>
-        You're {characterName}!
-      </PpgButton>
-      <div className="mb-8 bg-white p-3 border-[5px] border-black rounded-full shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
-        <Image
-          src={
-            characterImagePlaceholders[characterName] || "/placeholder.svg?width=200&height=200&query=Unknown+Character"
-          }
-          alt={characterName}
-          width={200}
-          height={200}
-          className="rounded-full"
-        />
+    <div className="w-full max-w-md mx-auto">
+      <div className="bg-white/90 backdrop-blur-sm border border-gray-200 rounded-3xl p-8 shadow-xl text-center">
+        {/* Character Badge */}
+        <div className="mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-100 to-orange-100 rounded-full border border-amber-200">
+            <span className="text-2xl">{character.emoji}</span>
+            <span className="font-bold text-gray-800">You are...</span>
+          </div>
+        </div>
+
+        {/* Character Name */}
+        <h2 className="text-3xl font-bold text-gray-800 mb-2">{character.name}</h2>
+
+        {/* Trait */}
+        <p className="text-lg text-amber-600 font-semibold mb-6">{character.trait}</p>
+
+        {/* Horse Fact Image */}
+        <div className="mb-6">
+          <div className="relative inline-block">
+            <Image
+              src={character.imagePath || "/placeholder.svg"}
+              alt={`Horse Fact ${character.factNumber}`}
+              width={280}
+              height={280}
+              className="rounded-2xl shadow-lg border-4 border-white"
+            />
+            <div className="absolute -top-2 -right-2 bg-amber-500 text-white text-sm font-bold px-3 py-1 rounded-full shadow-lg">
+              Fact #{character.factNumber}
+            </div>
+          </div>
+        </div>
+
+        {/* Description */}
+        <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl p-6 mb-8 border border-amber-100">
+          <p className="text-gray-700 leading-relaxed font-medium">{character.description}</p>
+        </div>
+
+        {/* Share Button */}
+        <ShareResultButton character={character} onReset={onReset} />
       </div>
-      <div className="relative bg-white border-[5px] border-black rounded-3xl p-6 w-full mb-10 text-center shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
-        <p className="text-xl font-body font-semibold text-black">{result.character.description}</p>
-        <div className="absolute left-1/2 -bottom-[19px] transform -translate-x-1/2 w-0 h-0 border-l-[20px] border-l-transparent border-r-[20px] border-r-transparent border-t-[20px] border-t-black" />
-        <div className="absolute left-1/2 -bottom-[14px] transform -translate-x-1/2 w-0 h-0 border-l-[17px] border-l-transparent border-r-[17px] border-r-transparent border-t-[17px] border-t-white" />
-      </div>
-      {/* Replace the PpgButton with ShareResultButton */}
-      <ShareResultButton character={result.character} onReset={onReset} />
     </div>
   )
 }
