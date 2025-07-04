@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Share2 } from "lucide-react"
 import type { Character } from "@/lib/characters"
-import sdk from "@farcaster/frame-sdk"
+import sdk from "@farcaster/miniapp-sdk"
 import { useEffect, useState } from "react"
 
 interface ShareResultButtonProps {
@@ -27,7 +27,9 @@ export function ShareResultButton({ character }: ShareResultButtonProps) {
     if (!isSDKLoaded) return
 
     try {
-      const shareText = `I'm ${character.name}! ${character.emoji} ${character.personality}
+      const shareText = `🐴 I'm ${character.name}! ${character.emoji}
+
+${character.personality}
 
 ${character.description}
 

@@ -4,7 +4,7 @@ import { SentimentAnalyzer } from "@/components/sentiment-analyzer"
 import { ShareButton } from "@/components/share-button"
 import Image from "next/image"
 import { useEffect } from "react"
-import sdk from "@farcaster/frame-sdk"
+import sdk from "@farcaster/miniapp-sdk"
 
 export default function Home() {
   useEffect(() => {

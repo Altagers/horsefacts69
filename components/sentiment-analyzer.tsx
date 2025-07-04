@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ShareResultButton } from "@/components/share-result-button"
 import { getCharacter } from "@/lib/characters"
 import Image from "next/image"
-import sdk from "@farcaster/frame-sdk"
+import sdk from "@farcaster/miniapp-sdk"
 
 export function SentimentAnalyzer() {
   const [isAnalyzing, setIsAnalyzing] = useState(false)

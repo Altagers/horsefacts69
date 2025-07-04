@@ -21,15 +21,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   const baseUrl = process.env.NEXT_PUBLIC_URL || "https://horsefacts-pics.vercel.app"
-  const ogImageUrl = `${baseUrl}/api/generate-og-image?character=${character.id}`
 
   return {
     title: `I'm ${character.name}! ${character.emoji}`,
-    description: `${character.personality} - ${character.description}`,
+    description: `${character.personality} - ${character.description} Horse Fact: ${character.fact}`,
     openGraph: {
       title: `I'm ${character.name}! ${character.emoji}`,
       description: `${character.personality} - ${character.description}`,
-      images: [ogImageUrl],
+      images: [character.image], // Используем статическое изображение персонажа
       type: "website",
       siteName: "Horse Facts & Pics",
     },
@@ -37,14 +36,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       card: "summary_large_image",
       title: `I'm ${character.name}! ${character.emoji}`,
       description: `${character.personality} - ${character.description}`,
-      images: [ogImageUrl],
-    },
-    // Простые метаданные для Farcaster
-    other: {
-      "og:image": ogImageUrl,
-      "og:image:width": "1200",
-      "og:image:height": "630",
-      "twitter:image": ogImageUrl,
+      images: [character.image],
     },
   }
 }

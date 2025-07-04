@@ -12,6 +12,7 @@
     "@ai-sdk/openai": "latest",
     "@coinbase/onchainkit": "latest",
     "@farcaster/frame-sdk": "latest",
+    "@farcaster/miniapp-sdk": "latest",
     "@hookform/resolvers": "^3.9.1",
     "@radix-ui/react-accordion": "latest",
     "@radix-ui/react-alert-dialog": "latest",
