@@ -1,108 +1,92 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import { SentimentAnalyzer } from "@/components/sentiment-analyzer"
 import { ShareButton } from "@/components/share-button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Sparkles, Heart, Users } from "lucide-react"
 import Image from "next/image"
+import { useEffect } from "react"
 import sdk from "@farcaster/frame-sdk"
 
 export default function Home() {
-  const [fid, setFid] = useState<number | null>(null)
-  const [isSDKLoaded, setIsSDKLoaded] = useState(false)
-
   useEffect(() => {
-    const load = async () => {
-      const context = await sdk.context
-      sdk.actions.ready()
-
-      if (context?.user?.fid) {
-        setFid(context.user.fid)
-      }
-      setIsSDKLoaded(true)
-    }
-
-    if (sdk && !isSDKLoaded) {
-      load()
-    }
-  }, [isSDKLoaded])
+    sdk.actions.ready()
+  }, [])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50">
-      {/* Hero Section */}
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-amber-600/10 to-orange-600/10" />
-        <div className="relative max-w-6xl mx-auto px-4 py-16">
-          <div className="text-center mb-12">
-            <div className="relative w-48 h-48 mx-auto mb-8">
-              <Image src="/banner.png" alt="Horse Facts & Pics" fill className="object-contain" priority />
+    <main className="min-h-screen bg-gradient-to-br from-amber-100 via-orange-50 to-yellow-100">
+      {/* Header */}
+      <header className="border-b border-amber-200/50 bg-white/80 backdrop-blur-sm">
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <Image src="/logo.png" alt="Horse Facts Logo" width={50} height={50} className="rounded-xl" />
+              <div>
+                <h1 className="text-2xl font-bold text-amber-900">Horse Facts & Pics</h1>
+                <p className="text-amber-700">Discover your horse personality</p>
+              </div>
             </div>
-            <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-              <span className="bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
-                Horse Facts & Pics
-              </span>
-            </h1>
-            <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Discover which of 10 unique horse personalities matches your Farcaster posts, complete with fascinating
-              horse facts and beautiful imagery!
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <ShareButton />
-            </div>
+            <ShareButton />
           </div>
         </div>
-      </div>
+      </header>
 
-      {/* Main Content */}
-      <div className="max-w-6xl mx-auto px-4 py-12">
-        {fid ? (
-          <SentimentAnalyzer fid={fid} />
-        ) : (
-          <Card className="border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50">
-            <CardContent className="p-8 text-center">
-              <Sparkles className="w-12 h-12 text-amber-600 mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Welcome to Horse Facts & Pics!</h2>
-              <p className="text-gray-600 mb-6">
-                Please open this app in a Farcaster client to analyze your personality.
-              </p>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Features Section */}
-        <div className="mt-16 grid md:grid-cols-3 gap-8">
-          <Card className="border-amber-200 bg-white/80 backdrop-blur-sm hover:shadow-lg transition-shadow duration-200">
-            <CardContent className="p-6 text-center">
-              <Sparkles className="w-10 h-10 text-amber-600 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">10 Unique Personalities</h3>
-              <p className="text-gray-600">
-                From Breathing Expert to Problem Solver, discover which horse personality matches your posting style.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-amber-200 bg-white/80 backdrop-blur-sm hover:shadow-lg transition-shadow duration-200">
-            <CardContent className="p-6 text-center">
-              <Heart className="w-10 h-10 text-amber-600 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Fascinating Facts</h3>
-              <p className="text-gray-600">
-                Learn amazing horse facts, from their 360-degree vision to their incredible memory abilities.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-amber-200 bg-white/80 backdrop-blur-sm hover:shadow-lg transition-shadow duration-200">
-            <CardContent className="p-6 text-center">
-              <Users className="w-10 h-10 text-amber-600 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Share & Compare</h3>
-              <p className="text-gray-600">
-                Share your horse personality with friends and see how your traits compare with others.
-              </p>
-            </CardContent>
-          </Card>
+      {/* Hero Section */}
+      <section className="py-12 px-4">
+        <div className="container mx-auto text-center mb-12">
+          <div className="relative w-32 h-32 mx-auto mb-6">
+            <Image src="/banner.png" alt="Horse Facts Banner" fill className="object-contain" />
+          </div>
+          <h2 className="text-4xl md:text-5xl font-bold text-amber-900 mb-4">Which Horse Fact Are You?</h2>
+          <p className="text-xl text-amber-700 max-w-2xl mx-auto">
+            Discover your unique personality through amazing horse facts! We'll analyze your Farcaster posts and match
+            you with one of 10 fascinating horse characteristics.
+          </p>
         </div>
-      </div>
-    </div>
+
+        {/* Main Analyzer */}
+        <SentimentAnalyzer />
+      </section>
+
+      {/* Features Section */}
+      <section className="py-16 px-4 bg-white/50">
+        <div className="container mx-auto">
+          <h3 className="text-3xl font-bold text-center text-amber-900 mb-12">Amazing Horse Facts Await</h3>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-6 max-w-4xl mx-auto">
+            {[
+              { num: 1, title: "Breathing", desc: "Only through nostrils" },
+              { num: 2, title: "Vision", desc: "360-degree awareness" },
+              { num: 3, title: "Eyes", desc: "Largest among mammals" },
+              { num: 4, title: "Sleep", desc: "Standing up ability" },
+              { num: 5, title: "Heart", desc: "250L per minute" },
+              { num: 6, title: "Teeth", desc: "Grow for lifetime" },
+              { num: 7, title: "Digestion", desc: "No gallbladder needed" },
+              { num: 8, title: "Memory", desc: "Recognize after years" },
+              { num: 9, title: "Expression", desc: "17+ facial expressions" },
+              { num: 10, title: "Intelligence", desc: "Learn mechanisms" },
+            ].map((fact) => (
+              <div key={fact.num} className="text-center">
+                <div className="relative w-20 h-20 mx-auto mb-3">
+                  <Image
+                    src={`/${fact.num}.png`}
+                    alt={`Horse fact ${fact.num}`}
+                    fill
+                    className="object-contain rounded-lg"
+                  />
+                </div>
+                <h4 className="font-semibold text-amber-900 text-sm">{fact.title}</h4>
+                <p className="text-xs text-amber-700">{fact.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="py-8 px-4 bg-amber-900 text-white">
+        <div className="container mx-auto text-center">
+          <p className="text-lg font-semibold mb-2">🐴 Horse Facts & Pics</p>
+          <p className="text-amber-200">Discover the amazing world of horses through personality analysis</p>
+        </div>
+      </footer>
+    </main>
   )
 }

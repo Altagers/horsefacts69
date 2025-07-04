@@ -2,19 +2,15 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Loader2, Sparkles } from "lucide-react"
-import { ShareResultButton } from "./share-result-button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { ShareResultButton } from "@/components/share-result-button"
 import { getCharacter } from "@/lib/characters"
 import Image from "next/image"
+import sdk from "@farcaster/frame-sdk"
 
-interface SentimentAnalyzerProps {
-  fid: number
-}
-
-export function SentimentAnalyzer({ fid }: SentimentAnalyzerProps) {
+export function SentimentAnalyzer() {
   const [isAnalyzing, setIsAnalyzing] = useState(false)
-  const [result, setResult] = useState<string | null>(null)
+  const [result, setResult] = useState<any>(null)
   const [error, setError] = useState<string | null>(null)
 
   const handleAnalyze = async () => {
@@ -23,6 +19,16 @@ export function SentimentAnalyzer({ fid }: SentimentAnalyzerProps) {
     setResult(null)
 
     try {
+      // Get user context from Farcaster
+      const context = await sdk.context
+      const fid = context?.user?.fid
+
+      if (!fid) {
+        throw new Error("Unable to get user information")
+      }
+
+      console.log("🔍 Starting analysis for FID:", fid)
+
       const response = await fetch("/api/analyze-user", {
         method: "POST",
         headers: {
@@ -36,101 +42,110 @@ export function SentimentAnalyzer({ fid }: SentimentAnalyzerProps) {
       }
 
       const data = await response.json()
-      setResult(data.character)
+      console.log("✅ Analysis result:", data)
+
+      setResult(data)
     } catch (err) {
-      setError("Internal error при попытке анализа.")
-      console.error("Analysis error:", err)
+      console.error("❌ Analysis error:", err)
+      setError("Failed to analyze your personality. Please try again.")
     } finally {
       setIsAnalyzing(false)
     }
   }
 
-  const character = result ? getCharacter(result) : null
+  const handleReset = () => {
+    setResult(null)
+    setError(null)
+  }
+
+  if (result) {
+    const character = getCharacter(result.character)
+    if (!character) {
+      return <div>Character not found</div>
+    }
+
+    return (
+      <Card className="w-full max-w-2xl mx-auto border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50">
+        <CardHeader className="text-center pb-4">
+          <CardTitle className="text-2xl font-bold text-amber-900">Your Horse Personality</CardTitle>
+        </CardHeader>
+        <CardContent className="text-center space-y-6">
+          <div className="relative w-40 h-40 mx-auto">
+            <Image
+              src={character.image || "/placeholder.svg"}
+              alt={character.name}
+              fill
+              className="object-contain rounded-2xl"
+            />
+          </div>
+
+          <div>
+            <h3 className="text-3xl font-bold text-amber-900 mb-2">
+              {character.emoji} {character.name}
+            </h3>
+            <p className="text-xl font-semibold text-amber-700 mb-4">{character.personality}</p>
+            <p className="text-lg text-amber-800 leading-relaxed mb-6">{character.description}</p>
+          </div>
+
+          <div className="bg-amber-100 rounded-xl p-6 border-2 border-amber-200">
+            <h4 className="font-bold text-amber-900 mb-3 text-lg">🐎 Horse Fact:</h4>
+            <p className="text-amber-800 italic">{character.fact}</p>
+          </div>
+
+          <div className="flex flex-col gap-4">
+            <ShareResultButton character={character} />
+            <Button
+              onClick={handleReset}
+              variant="outline"
+              className="border-amber-300 text-amber-700 hover:bg-amber-50 bg-transparent"
+            >
+              Analyze Again
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
 
   return (
-    <div className="w-full max-w-2xl mx-auto space-y-6">
-      {!result && (
-        <Card className="border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50">
-          <CardContent className="p-8 text-center">
-            <div className="mb-6">
-              <Sparkles className="w-12 h-12 text-amber-600 mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Discover Your Horse Personality</h2>
-              <p className="text-gray-600">
-                Based on your Farcaster posts, we'll match you with one of 10 unique horse personalities and fascinating
-                facts!
-              </p>
+    <Card className="w-full max-w-2xl mx-auto border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50">
+      <CardHeader className="text-center">
+        <CardTitle className="text-3xl font-bold text-amber-900 mb-4">🐴 Discover Your Horse Personality</CardTitle>
+        <p className="text-lg text-amber-700">
+          Find out which amazing horse fact matches your personality based on your Farcaster posts!
+        </p>
+      </CardHeader>
+      <CardContent className="text-center space-y-6">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
+            <div key={num} className="relative w-16 h-16 mx-auto">
+              <Image src={`/${num}.png`} alt={`Horse fact ${num}`} fill className="object-contain rounded-lg" />
             </div>
+          ))}
+        </div>
 
-            <Button
-              onClick={handleAnalyze}
-              disabled={isAnalyzing}
-              size="lg"
-              className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white px-8 py-3 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
-            >
-              {isAnalyzing ? (
-                <>
-                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                  Analyzing Your Posts...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-5 h-5 mr-2" />
-                  Analyze My Personality
-                </>
-              )}
-            </Button>
-          </CardContent>
-        </Card>
-      )}
+        {error && <div className="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded-lg">{error}</div>}
 
-      {error && (
-        <Card className="border-red-200 bg-red-50">
-          <CardContent className="p-6 text-center">
-            <p className="text-red-600 font-medium">{error}</p>
-            <Button
-              onClick={handleAnalyze}
-              variant="outline"
-              className="mt-4 border-red-200 text-red-600 hover:bg-red-100 bg-transparent"
-            >
-              Try Again
-            </Button>
-          </CardContent>
-        </Card>
-      )}
-
-      {character && (
-        <Card className="border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 overflow-hidden">
-          <CardContent className="p-0">
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-amber-600/20 to-orange-600/20" />
-              <div className="relative p-8 text-center">
-                <div className="mb-6">
-                  <div className="relative w-32 h-32 mx-auto mb-4">
-                    <Image
-                      src={character.image || "/placeholder.svg"}
-                      alt={character.name}
-                      fill
-                      className="object-contain rounded-2xl"
-                    />
-                  </div>
-                  <h2 className="text-3xl font-bold text-gray-900 mb-2">You're {character.name}!</h2>
-                  <p className="text-xl text-amber-700 font-semibold mb-4">{character.personality}</p>
-                </div>
-
-                <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 mb-6">
-                  <p className="text-gray-700 text-lg leading-relaxed mb-4">{character.description}</p>
-                  <div className="bg-amber-100 rounded-lg p-4">
-                    <p className="text-sm font-semibold text-amber-800 mb-2">🐴 Horse Fact:</p>
-                    <p className="text-amber-700 text-sm">{character.fact}</p>
-                  </div>
-                </div>
-
-                <ShareResultButton character={character} />
-              </div>
+        <Button
+          onClick={handleAnalyze}
+          disabled={isAnalyzing}
+          size="lg"
+          className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white px-8 py-4 text-xl font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+        >
+          {isAnalyzing ? (
+            <div className="flex items-center gap-2">
+              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              Analyzing Your Posts...
             </div>
-          </CardContent>
-        </Card>
-      )}
-    </div>
+          ) : (
+            "🔍 Analyze My Personality"
+          )}
+        </Button>
+
+        <p className="text-sm text-amber-600">
+          We'll analyze your recent Farcaster posts to determine which horse fact best represents your personality!
+        </p>
+      </CardContent>
+    </Card>
   )
 }

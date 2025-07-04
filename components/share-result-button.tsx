@@ -27,9 +27,11 @@ export function ShareResultButton({ character }: ShareResultButtonProps) {
     if (!isSDKLoaded) return
 
     try {
-      const shareText = `I'm ${character.name}! 🐴 ${character.personality}
+      const shareText = `I'm ${character.name}! ${character.emoji} ${character.personality}
 
 ${character.description}
+
+🐎 Horse Fact: ${character.fact}
 
 Discover your horse personality:`
 

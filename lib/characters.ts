@@ -5,6 +5,7 @@ export interface Character {
   image: string
   fact: string
   personality: string
+  emoji: string
 }
 
 export const characters: Record<string, Character> = {
@@ -16,6 +17,7 @@ export const characters: Record<string, Character> = {
     image: "/1.png",
     fact: "Horses cannot breathe through their mouth – only through their nostrils",
     personality: "The Direct Communicator",
+    emoji: "🫁",
   },
   "all-seeing-observer": {
     id: "all-seeing-observer",
@@ -25,6 +27,7 @@ export const characters: Record<string, Character> = {
     image: "/2.png",
     fact: "Their eyes are located on the sides of their head, providing almost 360-degree vision, but there are blind spots in front and behind",
     personality: "The Perceptive Visionary",
+    emoji: "👁️",
   },
   "big-picture-thinker": {
     id: "big-picture-thinker",
@@ -34,6 +37,7 @@ export const characters: Record<string, Character> = {
     image: "/3.png",
     fact: "Horses have the largest eyes among all terrestrial mammals",
     personality: "The Visionary Dreamer",
+    emoji: "🔍",
   },
   "efficient-rester": {
     id: "efficient-rester",
@@ -41,8 +45,9 @@ export const characters: Record<string, Character> = {
     description:
       "You're incredibly adaptable and can find balance anywhere, just like horses who can sleep standing up but know when they need deep rest. You optimize your energy perfectly.",
     image: "/4.png",
-    fact: 'They can sleep standing up thanks to a "locking mechanism" in their joints, but they need to lie down for deep sleep',
+    fact: "They can sleep standing up thanks to a 'locking mechanism' in their joints, but they need to lie down for deep sleep",
     personality: "The Balanced Optimizer",
+    emoji: "😴",
   },
   powerhouse: {
     id: "powerhouse",
@@ -52,6 +57,7 @@ export const characters: Record<string, Character> = {
     image: "/5.png",
     fact: "A horse's heart weighs about 4-5 kg and can pump up to 250 liters of blood per minute during intense running",
     personality: "The Energetic Force",
+    emoji: "💪",
   },
   "lifelong-learner": {
     id: "lifelong-learner",
@@ -61,6 +67,7 @@ export const characters: Record<string, Character> = {
     image: "/6.png",
     fact: "Horse teeth grow throughout their lifetime, and their age can be determined by tooth wear",
     personality: "The Continuous Grower",
+    emoji: "📚",
   },
   "efficient-processor": {
     id: "efficient-processor",
@@ -70,6 +77,7 @@ export const characters: Record<string, Character> = {
     image: "/7.png",
     fact: "Horses don't have a gallbladder, but this doesn't prevent them from digesting plant food",
     personality: "The Streamlined Worker",
+    emoji: "⚡",
   },
   "loyal-friend": {
     id: "loyal-friend",
@@ -79,6 +87,7 @@ export const characters: Record<string, Character> = {
     image: "/8.png",
     fact: "Horses have excellent memory and can recognize people after years",
     personality: "The Faithful Companion",
+    emoji: "🤝",
   },
   "great-communicator": {
     id: "great-communicator",
@@ -88,6 +97,7 @@ export const characters: Record<string, Character> = {
     image: "/9.png",
     fact: "They use facial expressions to communicate, having more than 17 facial expressions",
     personality: "The Expressive Connector",
+    emoji: "😊",
   },
   "problem-solver": {
     id: "problem-solver",
@@ -97,6 +107,7 @@ export const characters: Record<string, Character> = {
     image: "/10.png",
     fact: "Horses are capable of learning to open doors, unscrew caps, and use simple mechanisms",
     personality: "The Creative Innovator",
+    emoji: "🧠",
   },
 }
 

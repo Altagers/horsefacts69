@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title: `${character.name} - Horse Facts & Pics`,
     description: `${character.description} ${character.fact}`,
     openGraph: {
-      title: `I'm ${character.name}! 🐴 ${character.personality}`,
+      title: `I'm ${character.name}! ${character.emoji} ${character.personality}`,
       description: character.description,
       images: [
         {
@@ -41,7 +41,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     },
     twitter: {
       card: "summary_large_image",
-      title: `I'm ${character.name}! 🐴 ${character.personality}`,
+      title: `I'm ${character.name}! ${character.emoji} ${character.personality}`,
       description: character.description,
       images: [`${baseUrl}/api/generate-og-image?character=${character.id}`],
     },
@@ -91,7 +91,9 @@ export default function CharacterPage({ params }: PageProps) {
                       className="object-contain rounded-2xl"
                     />
                   </div>
-                  <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">{character.name}</h1>
+                  <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                    {character.emoji} {character.name}
+                  </h1>
                   <p className="text-2xl text-amber-700 font-semibold mb-6">{character.personality}</p>
                 </div>
 
