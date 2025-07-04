@@ -8,7 +8,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const characterId = searchParams.get("character")
 
-    console.log("🖼️ Generating OG image for character:", characterId)
+    console.log("🖼️ OG Image request for character:", characterId)
 
     if (!characterId) {
       console.error("❌ No character ID provided")
@@ -22,12 +22,12 @@ export async function GET(request: Request) {
       return new Response("Character not found", { status: 404 })
     }
 
+    console.log("✅ Generating OG image for:", character.name)
+
+    // Используем статичное изображение вместо динамической загрузки
     const baseUrl = process.env.NEXT_PUBLIC_URL || "https://horsefacts-pics.vercel.app"
-    const imageUrl = `${baseUrl}${character.image}`
 
-    console.log("✅ Generating image for:", character.name, "Image URL:", imageUrl)
-
-    return new ImageResponse(
+    const response = new ImageResponse(
       <div
         style={{
           height: "100%",
@@ -37,194 +37,210 @@ export async function GET(request: Request) {
           alignItems: "center",
           justifyContent: "center",
           backgroundColor: "#FEF3C7",
-          backgroundImage: "linear-gradient(45deg, #FEF3C7 0%, #FED7AA 100%)",
-          fontFamily: "system-ui, sans-serif",
+          backgroundImage: "linear-gradient(135deg, #FEF3C7 0%, #FED7AA 50%, #FDBA74 100%)",
+          fontFamily: "system-ui, -apple-system, sans-serif",
           position: "relative",
         }}
       >
-        {/* Background Pattern */}
+        {/* Background decorations */}
         <div
           style={{
             position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundImage:
-              "radial-gradient(circle at 25% 25%, #F59E0B20 0%, transparent 50%), radial-gradient(circle at 75% 75%, #EA580C20 0%, transparent 50%)",
+            top: "20px",
+            left: "20px",
+            fontSize: "60px",
+            opacity: 0.3,
           }}
-        />
+        >
+          🐴
+        </div>
+        <div
+          style={{
+            position: "absolute",
+            top: "20px",
+            right: "20px",
+            fontSize: "60px",
+            opacity: 0.3,
+            transform: "scaleX(-1)",
+          }}
+        >
+          🐴
+        </div>
+        <div
+          style={{
+            position: "absolute",
+            bottom: "20px",
+            left: "50px",
+            fontSize: "40px",
+            opacity: 0.2,
+          }}
+        >
+          🌾
+        </div>
+        <div
+          style={{
+            position: "absolute",
+            bottom: "20px",
+            right: "50px",
+            fontSize: "40px",
+            opacity: 0.2,
+          }}
+        >
+          🌾
+        </div>
 
-        {/* Header */}
+        {/* Main content container */}
         <div
           style={{
             display: "flex",
+            flexDirection: "column",
             alignItems: "center",
-            marginBottom: "30px",
-            zIndex: 1,
+            backgroundColor: "rgba(255, 255, 255, 0.95)",
+            borderRadius: "32px",
+            padding: "60px",
+            boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+            border: "6px solid #F59E0B",
+            maxWidth: "1000px",
+            textAlign: "center",
           }}
         >
+          {/* Header */}
           <div
             style={{
-              fontSize: "40px",
-              marginRight: "15px",
+              fontSize: "36px",
+              fontWeight: "bold",
+              color: "#92400E",
+              marginBottom: "30px",
+              display: "flex",
+              alignItems: "center",
             }}
           >
-            🐴
+            <span style={{ marginRight: "15px" }}>🐴</span>
+            Horse Facts & Pics
+            <span style={{ marginLeft: "15px", transform: "scaleX(-1)" }}>🐴</span>
           </div>
+
+          {/* Character info */}
+          <div
+            style={{
+              fontSize: "72px",
+              fontWeight: "bold",
+              color: "#92400E",
+              marginBottom: "20px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <span style={{ marginRight: "20px" }}>{character.emoji}</span>
+            {character.name}
+          </div>
+
           <div
             style={{
               fontSize: "32px",
-              fontWeight: "bold",
+              fontWeight: "600",
+              color: "#B45309",
+              marginBottom: "30px",
+            }}
+          >
+            {character.personality}
+          </div>
+
+          <div
+            style={{
+              fontSize: "24px",
               color: "#92400E",
+              lineHeight: "1.4",
+              marginBottom: "40px",
+              maxWidth: "800px",
             }}
           >
-            Horse Facts & Pics
-          </div>
-          <div
-            style={{
-              fontSize: "40px",
-              marginLeft: "15px",
-              transform: "scaleX(-1)",
-            }}
-          >
-            🐴
-          </div>
-        </div>
-
-        {/* Main Content */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            backgroundColor: "rgba(255, 255, 255, 0.95)",
-            borderRadius: "24px",
-            padding: "40px",
-            boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)",
-            border: "4px solid #F59E0B",
-            maxWidth: "1000px",
-            zIndex: 1,
-          }}
-        >
-          {/* Character Image */}
-          <div
-            style={{
-              display: "flex",
-              marginRight: "40px",
-            }}
-          >
-            <img
-              src={imageUrl || "/placeholder.svg"}
-              alt={character.name}
-              width="280"
-              height="280"
-              style={{
-                borderRadius: "20px",
-                border: "4px solid #F59E0B",
-                objectFit: "contain",
-                backgroundColor: "white",
-              }}
-            />
+            {character.description.length > 120
+              ? character.description.substring(0, 120) + "..."
+              : character.description}
           </div>
 
-          {/* Character Details */}
+          {/* Horse fact box */}
           <div
             style={{
-              display: "flex",
-              flexDirection: "column",
-              flex: 1,
+              backgroundColor: "#FEF3C7",
+              padding: "30px",
+              borderRadius: "20px",
+              border: "3px solid #F59E0B",
+              maxWidth: "800px",
             }}
           >
             <div
               style={{
-                fontSize: "44px",
+                fontSize: "24px",
                 fontWeight: "bold",
                 color: "#92400E",
-                marginBottom: "16px",
-                display: "flex",
-                alignItems: "center",
+                marginBottom: "15px",
               }}
             >
-              <span style={{ marginRight: "16px" }}>{character.emoji}</span>
-              {character.name}
+              🐎 Horse Fact:
             </div>
-
             <div
               style={{
-                fontSize: "26px",
-                fontWeight: "600",
-                color: "#B45309",
-                marginBottom: "20px",
-              }}
-            >
-              {character.personality}
-            </div>
-
-            <div
-              style={{
-                fontSize: "18px",
+                fontSize: "20px",
                 color: "#92400E",
-                lineHeight: "1.4",
-                marginBottom: "24px",
+                fontStyle: "italic",
+                lineHeight: "1.3",
               }}
             >
-              {character.description.length > 140
-                ? character.description.substring(0, 140) + "..."
-                : character.description}
-            </div>
-
-            <div
-              style={{
-                backgroundColor: "#FEF3C7",
-                padding: "20px",
-                borderRadius: "12px",
-                border: "2px solid #F59E0B",
-              }}
-            >
-              <div
-                style={{
-                  fontSize: "16px",
-                  fontWeight: "bold",
-                  color: "#92400E",
-                  marginBottom: "8px",
-                }}
-              >
-                🐎 Horse Fact:
-              </div>
-              <div
-                style={{
-                  fontSize: "14px",
-                  color: "#92400E",
-                  fontStyle: "italic",
-                  lineHeight: "1.3",
-                }}
-              >
-                {character.fact.length > 120 ? character.fact.substring(0, 120) + "..." : character.fact}
-              </div>
+              {character.fact.length > 100 ? character.fact.substring(0, 100) + "..." : character.fact}
             </div>
           </div>
-        </div>
 
-        {/* Footer */}
-        <div
-          style={{
-            marginTop: "30px",
-            fontSize: "20px",
-            color: "#92400E",
-            fontWeight: "600",
-            zIndex: 1,
-          }}
-        >
-          Discover your horse personality!
+          {/* Footer */}
+          <div
+            style={{
+              marginTop: "40px",
+              fontSize: "24px",
+              color: "#92400E",
+              fontWeight: "600",
+            }}
+          >
+            Discover your horse personality!
+          </div>
         </div>
+      </div>,
+      {
+        width: 1200,
+        height: 630,
+        headers: {
+          "Cache-Control": "public, max-age=31536000, immutable",
+        },
+      },
+    )
+
+    console.log("✅ OG image generated successfully")
+    return response
+  } catch (error) {
+    console.error("❌ Error generating OG image:", error)
+
+    // Fallback изображение
+    return new ImageResponse(
+      <div
+        style={{
+          height: "100%",
+          width: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: "#FEF3C7",
+          fontSize: "48px",
+          fontWeight: "bold",
+          color: "#92400E",
+        }}
+      >
+        🐴 Horse Facts & Pics 🐴
       </div>,
       {
         width: 1200,
         height: 630,
       },
     )
-  } catch (error) {
-    console.error("❌ Error generating OG image:", error)
-    return new Response("Failed to generate image", { status: 500 })
   }
 }

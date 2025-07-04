@@ -24,11 +24,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const ogImageUrl = `${baseUrl}/api/generate-og-image?character=${character.id}`
 
   return {
-    title: `${character.name} - Horse Facts & Pics`,
+    title: `I'm ${character.name}! ${character.emoji} ${character.personality}`,
     description: `${character.description} Horse Fact: ${character.fact}`,
     openGraph: {
-      title: `I'm ${character.name}! ${character.emoji} ${character.personality}`,
-      description: character.description,
+      title: `I'm ${character.name}! ${character.emoji}`,
+      description: `${character.personality} - ${character.description}`,
       images: [
         {
           url: ogImageUrl,
@@ -43,25 +43,23 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     },
     twitter: {
       card: "summary_large_image",
-      title: `I'm ${character.name}! ${character.emoji} ${character.personality}`,
-      description: character.description,
+      title: `I'm ${character.name}! ${character.emoji}`,
+      description: `${character.personality} - ${character.description}`,
       images: [ogImageUrl],
     },
+    // Добавляем правильные метаданные для Farcaster
     other: {
-      "fc:frame": JSON.stringify({
-        version: "next",
-        imageUrl: ogImageUrl,
-        button: {
-          title: `I'm ${character.name}! Open Analyzer`,
-          action: {
-            type: "launch_frame",
-            name: "Horse Facts & Pics",
-            url: baseUrl,
-            splashImageUrl: `${baseUrl}/splash.png`,
-            splashBackgroundColor: "#FEF3C7",
-          },
-        },
-      }),
+      "og:image": ogImageUrl,
+      "og:image:width": "1200",
+      "og:image:height": "630",
+      "og:image:alt": `${character.name} - ${character.personality}`,
+      "twitter:image": ogImageUrl,
+      "fc:frame": "vNext",
+      "fc:frame:image": ogImageUrl,
+      "fc:frame:image:aspect_ratio": "1.91:1",
+      "fc:frame:button:1": `I'm ${character.name}! Open Analyzer`,
+      "fc:frame:button:1:action": "link",
+      "fc:frame:button:1:target": baseUrl,
     },
   }
 }
