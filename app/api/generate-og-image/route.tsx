@@ -1,32 +1,30 @@
 import { ImageResponse } from "next/og"
-import type { NextRequest } from "next/server"
 import { characters } from "@/lib/characters"
 
 export const runtime = "edge"
 
-export async function GET(req: NextRequest) {
+export async function GET(request: Request) {
   try {
-    const { searchParams } = new URL(req.url)
+    const { searchParams } = new URL(request.url)
     const characterName = searchParams.get("characterName")
-    const characterImagePublicPath = searchParams.get("characterImage")
+    const characterImage = searchParams.get("characterImage")
 
-    const baseUrl = process.env.NEXT_PUBLIC_URL || "https://v0-powerpuff-girls-mg.vercel.app"
-
-    if (!characterName || !characterImagePublicPath) {
-      return new Response("Missing character information", { status: 400 })
+    if (!characterName) {
+      return new Response("Missing characterName parameter", { status: 400 })
     }
 
-    const characterImageUrl = new URL(characterImagePublicPath, baseUrl).toString()
-
-    const characterData = Object.values(characters).find(
+    const character = Object.values(characters).find(
       (c) => c.name.toLowerCase().replace(/\s+/g, "-") === characterName.toLowerCase(),
     )
 
-    if (!characterData) {
+    if (!character) {
       return new Response("Character not found", { status: 404 })
     }
 
-    const bgGradient = "linear-gradient(135deg, #FEF3C7 0%, #FED7AA 50%, #FBBF24 100%)"
+    const baseUrl = process.env.NEXT_PUBLIC_URL || "https://horsefacts-pics.vercel.app"
+    const imageUrl = characterImage?.startsWith("http")
+      ? characterImage
+      : `${baseUrl}${characterImage || character.imagePath}`
 
     return new ImageResponse(
       <div
@@ -37,9 +35,8 @@ export async function GET(req: NextRequest) {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          background: bgGradient,
-          padding: "40px",
-          fontFamily: "system-ui, sans-serif",
+          backgroundColor: "#FEF3C7",
+          backgroundImage: "linear-gradient(45deg, #FEF3C7 0%, #FED7AA 50%, #FEF3C7 100%)",
         }}
       >
         {/* Header */}
@@ -47,89 +44,158 @@ export async function GET(req: NextRequest) {
           style={{
             display: "flex",
             alignItems: "center",
-            gap: "16px",
-            marginBottom: "32px",
+            marginBottom: "40px",
           }}
         >
-          <div style={{ fontSize: "48px" }}>🐴</div>
-          <h1
+          <div
             style={{
               fontSize: "48px",
-              fontWeight: "bold",
-              color: "#1F2937",
-              margin: 0,
+              marginRight: "20px",
             }}
           >
-            Horse Facts
-          </h1>
-          <div style={{ fontSize: "48px", transform: "scaleX(-1)" }}>🐴</div>
+            🐴
+          </div>
+          <div
+            style={{
+              fontSize: "36px",
+              fontWeight: "bold",
+              color: "#92400E",
+            }}
+          >
+            Horse Facts & Pics
+          </div>
+          <div
+            style={{
+              fontSize: "48px",
+              marginLeft: "20px",
+              transform: "scaleX(-1)",
+            }}
+          >
+            🐴
+          </div>
         </div>
-
-        {/* Character Image */}
-        <img
-          src={characterImageUrl || "/placeholder.svg"}
-          width={280}
-          height={280}
-          style={{
-            borderRadius: "20px",
-            border: "6px solid white",
-            boxShadow: "0 20px 40px rgba(0,0,0,0.1)",
-            marginBottom: "32px",
-          }}
-          alt={characterData.name}
-        />
 
         {/* Character Info */}
         <div
           style={{
             display: "flex",
             alignItems: "center",
-            gap: "12px",
-            marginBottom: "24px",
+            backgroundColor: "rgba(255, 255, 255, 0.9)",
+            borderRadius: "24px",
+            padding: "40px",
+            boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)",
+            border: "3px solid #F59E0B",
+            maxWidth: "1000px",
           }}
         >
-          <span style={{ fontSize: "32px" }}>{characterData.emoji}</span>
-          <h2
+          {/* Character Image */}
+          <div
             style={{
-              fontSize: "42px",
-              fontWeight: "bold",
-              color: "#1F2937",
-              margin: 0,
-              textAlign: "center",
+              display: "flex",
+              marginRight: "40px",
             }}
           >
-            I'm {characterData.name}!
-          </h2>
+            <img
+              src={imageUrl || "/placeholder.svg"}
+              alt={character.name}
+              width="300"
+              height="200"
+              style={{
+                borderRadius: "16px",
+                border: "4px solid #F59E0B",
+                objectFit: "cover",
+              }}
+            />
+          </div>
+
+          {/* Character Details */}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              flex: 1,
+            }}
+          >
+            <div
+              style={{
+                fontSize: "48px",
+                fontWeight: "bold",
+                color: "#92400E",
+                marginBottom: "16px",
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              <span style={{ marginRight: "16px" }}>{character.emoji}</span>
+              {character.name}
+            </div>
+
+            <div
+              style={{
+                fontSize: "28px",
+                fontWeight: "600",
+                color: "#B45309",
+                marginBottom: "20px",
+              }}
+            >
+              {character.trait}
+            </div>
+
+            <div
+              style={{
+                fontSize: "20px",
+                color: "#92400E",
+                lineHeight: "1.4",
+                marginBottom: "24px",
+              }}
+            >
+              {character.description.length > 120
+                ? character.description.substring(0, 120) + "..."
+                : character.description}
+            </div>
+
+            <div
+              style={{
+                backgroundColor: "#FEF3C7",
+                padding: "20px",
+                borderRadius: "12px",
+                border: "2px solid #F59E0B",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "18px",
+                  fontWeight: "bold",
+                  color: "#92400E",
+                  marginBottom: "8px",
+                }}
+              >
+                🐎 Horse Fact #{character.factNumber}
+              </div>
+              <div
+                style={{
+                  fontSize: "16px",
+                  color: "#92400E",
+                  fontStyle: "italic",
+                }}
+              >
+                {character.fact.length > 100 ? character.fact.substring(0, 100) + "..." : character.fact}
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Fact Number Badge */}
+        {/* Footer */}
         <div
           style={{
-            background: "#F59E0B",
-            color: "white",
+            marginTop: "40px",
             fontSize: "24px",
-            fontWeight: "bold",
-            padding: "8px 20px",
-            borderRadius: "20px",
-            marginBottom: "20px",
+            color: "#92400E",
+            fontWeight: "600",
           }}
         >
-          Horse Fact #{characterData.factNumber}
+          Discover your horse personality at horsefacts-pics.vercel.app
         </div>
-
-        {/* Description */}
-        <p
-          style={{
-            fontSize: "28px",
-            color: "#374151",
-            textAlign: "center",
-            maxWidth: "90%",
-            lineHeight: 1.4,
-            margin: 0,
-          }}
-        >
-          {characterData.description}
-        </p>
       </div>,
       {
         width: 1200,
@@ -137,7 +203,9 @@ export async function GET(req: NextRequest) {
       },
     )
   } catch (e: any) {
-    console.error(`OG Image Error: Failed to generate ImageResponse:`, e.message)
-    return new Response(`Failed to generate image: ${e.message}`, { status: 500 })
+    console.log(`${e.message}`)
+    return new Response(`Failed to generate the image`, {
+      status: 500,
+    })
   }
 }

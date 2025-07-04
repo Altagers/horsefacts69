@@ -1,4 +1,4 @@
-export interface HorseFactCharacter {
+export interface Character {
   name: string
   trait: string
   description: string
@@ -8,12 +8,12 @@ export interface HorseFactCharacter {
   emoji: string
 }
 
-export const characters: Record<string, HorseFactCharacter> = {
+export const characters: Record<string, Character> = {
   "breathing-expert": {
     name: "Breathing Expert",
     trait: "The Focused Achiever",
     description:
-      "You're direct and efficient, just like horses who can only breathe through their nostrils. You focus on what matters most and don't get distracted by unnecessary complications.",
+      "You're direct and focused, just like horses who can only breathe through their nostrils. You know how to concentrate on what matters most and don't get distracted by unnecessary things.",
     fact: "Horses cannot breathe through their mouth – only through their nostrils",
     factNumber: 1,
     imagePath: "/1.png",
@@ -23,7 +23,7 @@ export const characters: Record<string, HorseFactCharacter> = {
     name: "All-Seeing Observer",
     trait: "The Visionary",
     description:
-      "Like horses with their incredible 360-degree vision, you see opportunities and details that others miss. You're always aware of your surroundings and think ahead.",
+      "You have an incredible ability to see opportunities and perspectives others miss, just like horses with their amazing 360-degree vision. You're always aware of what's happening around you.",
     fact: "Their eyes are located on the sides of their head, providing almost 360-degree vision, but there are blind spots in front and behind",
     factNumber: 2,
     imagePath: "/2.png",
@@ -31,9 +31,9 @@ export const characters: Record<string, HorseFactCharacter> = {
   },
   "big-picture-thinker": {
     name: "Big Picture Thinker",
-    trait: "The Grand Visionary",
+    trait: "The Comprehensive Viewer",
     description:
-      "You see the world in grand scale, just like horses who have the largest eyes among all land mammals. You focus on comprehensive solutions and big ideas.",
+      "You see the world in grand detail and notice things others overlook, just like horses who have the largest eyes among all land mammals. You appreciate the full scope of any situation.",
     fact: "Horses have the largest eyes among all terrestrial mammals",
     factNumber: 3,
     imagePath: "/3.png",
@@ -41,9 +41,9 @@ export const characters: Record<string, HorseFactCharacter> = {
   },
   "efficient-rester": {
     name: "Efficient Rester",
-    trait: "The Balanced Achiever",
+    trait: "The Adaptive Balancer",
     description:
-      "You know how to balance work and rest perfectly. Like horses who can sleep standing up but need to lie down for deep sleep, you adapt to any situation.",
+      "You know how to balance efficiency with rest, just like horses who can sleep standing up but know when they need deep rest. You're adaptable and know when to conserve energy.",
     fact: "They can sleep standing up thanks to a 'locking mechanism' in their joints, but they need to lie down for deep sleep",
     factNumber: 4,
     imagePath: "/4.png",
@@ -53,7 +53,7 @@ export const characters: Record<string, HorseFactCharacter> = {
     name: "Powerhouse",
     trait: "The Energetic Force",
     description:
-      "You're full of energy and passion, just like a horse's incredible heart that can pump 250 liters of blood per minute. You bring intensity to everything you do.",
+      "You have incredible energy and passion that drives everything you do, just like a horse's powerful heart that can pump 250 liters of blood per minute. You bring intensity to every project.",
     fact: "A horse's heart weighs about 4-5 kg and can pump up to 250 liters of blood per minute during intense running",
     factNumber: 5,
     imagePath: "/5.png",
@@ -63,7 +63,7 @@ export const characters: Record<string, HorseFactCharacter> = {
     name: "Lifelong Learner",
     trait: "The Continuous Grower",
     description:
-      "You never stop growing and learning, just like horse teeth that grow throughout their lifetime. You're always developing new skills and knowledge.",
+      "You never stop growing and learning, just like horse teeth that grow throughout their entire lifetime. You're always developing new skills and expanding your knowledge.",
     fact: "Horse teeth grow throughout their lifetime, and their age can be determined by tooth wear",
     factNumber: 6,
     imagePath: "/6.png",
@@ -73,7 +73,7 @@ export const characters: Record<string, HorseFactCharacter> = {
     name: "Efficient Processor",
     trait: "The Streamlined Optimizer",
     description:
-      "You're incredibly efficient and don't need unnecessary complications. Like horses who don't have a gallbladder but digest perfectly, you optimize everything.",
+      "You're incredibly efficient at processing and handling complex tasks, just like horses who don't need a gallbladder but still digest perfectly. You find ways to optimize everything.",
     fact: "Horses don't have a gallbladder, but this doesn't prevent them from digesting plant food",
     factNumber: 7,
     imagePath: "/7.png",
@@ -81,9 +81,9 @@ export const characters: Record<string, HorseFactCharacter> = {
   },
   "loyal-friend": {
     name: "Loyal Friend",
-    trait: "The Faithful Companion",
+    trait: "The Faithful Connector",
     description:
-      "You have an incredible memory for people and relationships, just like horses who can recognize people after years. You're the friend everyone can count on.",
+      "You have an amazing memory for people and relationships, just like horses who can recognize people after years apart. You value deep, lasting connections with others.",
     fact: "Horses have excellent memory and can recognize people after years",
     factNumber: 8,
     imagePath: "/8.png",
@@ -93,7 +93,7 @@ export const characters: Record<string, HorseFactCharacter> = {
     name: "Great Communicator",
     trait: "The Expressive Connector",
     description:
-      "You're incredibly expressive and great at communicating, just like horses who have more than 17 different facial expressions. You connect with people naturally.",
+      "You're incredibly expressive and great at communicating, just like horses who have more than 17 different facial expressions. You connect with people naturally and share emotions easily.",
     fact: "They use facial expressions to communicate, having more than 17 facial expressions",
     factNumber: 9,
     imagePath: "/9.png",
@@ -103,7 +103,7 @@ export const characters: Record<string, HorseFactCharacter> = {
     name: "Problem Solver",
     trait: "The Clever Innovator",
     description:
-      "You're incredibly clever and can figure out complex problems, just like horses who can learn to open doors and use simple mechanisms. You find solutions others can't see.",
+      "You're incredibly clever at figuring out solutions and learning new skills, just like horses who can learn to open doors and use simple mechanisms. You love tackling challenges.",
     fact: "Horses are capable of learning to open doors, unscrew caps, and use simple mechanisms",
     factNumber: 10,
     imagePath: "/10.png",

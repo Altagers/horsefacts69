@@ -1,31 +1,39 @@
 "use client"
 
+import { Button } from "@/components/ui/button"
 import { useMiniKit } from "@coinbase/onchainkit/minikit"
-import { sdk } from "@farcaster/frame-sdk"
 
 export function ShareButton() {
-  const { context } = useMiniKit()
+  const { sdk } = useMiniKit()
 
-  const handleShare = async () => {
-    const username = context?.user?.username ?? "someone"
-    const text = `Babe wake up new MiniKit Demo just dropped 💅`
+  const handleShare = () => {
+    const shareText = `🐴 Just discovered my horse personality! 
 
-    try {
-      await sdk.actions.composeCast({
-        text,
-        embeds: [process.env.NEXT_PUBLIC_URL || window.location.origin],
+These amazing horse facts will blow your mind - from horses who can only breathe through their nostrils to those with 360-degree vision! 
+
+Find out which incredible horse trait matches YOUR personality:`
+
+    const shareUrl = window.location.origin
+
+    if (sdk?.actions?.composeCast) {
+      sdk.actions.composeCast({
+        text: shareText,
+        embeds: [shareUrl],
       })
-    } catch (err) {
-      console.error("Failed to open composer:", err)
+    } else {
+      // Fallback
+      const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText + " " + shareUrl)}`
+      window.open(twitterUrl, "_blank")
     }
   }
 
   return (
-    <button
+    <Button
       onClick={handleShare}
-      className="px-8 py-4 rounded-2xl border border-stone-200 font-semibold text-sm bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 backdrop-blur-sm min-w-[200px]"
+      size="lg"
+      className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-8 py-4 text-lg font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
     >
-      Cast About This Mini App
-    </button>
+      🚀 Share This App
+    </Button>
   )
 }
